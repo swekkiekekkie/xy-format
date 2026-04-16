@@ -1,9 +1,36 @@
 # Issue: Pointer-Tail Note Decode Gaps
 
+## Status (2026-04-16 update)
+
+**Multi-note 0x25 events (previously classified `hybrid-tail`) now decode
+cleanly for the standard sequential encoding.** The inspector routes
+events that use the continuation-byte state machine through
+`xy/note_reader.read_event`, which was already the correct decoder for
+0x21 events. The unified parser recovers note, velocity, step, and gate
+for every multi-note 0x25 event in the corpus except `unnamed 3`, which
+uses a device-native variable-length tick encoding the unified parser
+does not yet handle. For `unnamed 3` the inspector falls back to the
+legacy tail-word heuristic (correct note identities, imperfect step/gate).
+
+Regression coverage: `tests/test_multi_note_decode.py` locks the
+decoded notes for `unnamed 80` (6-note sequence with chord), `unnamed
+94` (MIDI-harness drum pair with gate 480), `unnamed 101` (48-note
+4-bar drum groove), `unnamed 93b`, and `unnamed 3` (fallback path).
+
+**Still open**:
+1. **Pointer-21 events** (202 corpus files). Different header layout
+   (`21 00 <count_u16_le> …` rather than `21 <count:byte> …`) and the
+   payload lives in pointer-referenced slabs, not inline. The unified
+   sequential parser rejects these. Decode work is the same as the
+   historical notes in this issue — no change.
+2. **`unnamed 3` tick encoding**. The native variable-length form
+   (flag 0x00 with 2 extra bytes before the gate field) needs a
+   parser extension in `xy/note_reader.read_event`.
+
 ## Summary
-- The inspector still reports “note data unresolved” for pointer-driven note payloads (hybrid 0x25 events and pointer-21 blocks) even though we have offsets into the per-step slabs.
+- Pointer-21 blocks (variant 0 / live-record events) still report `note data unresolved`.
 - Per-voice node records at `track+0x16xx` mingle live note nodes with static lookup tables, so naïvely reading every 16-byte slice prints garbage (e.g. remnant preset tables, parameter defaults).
-- Without a reliable rule for identifying real nodes and converting the `step_token` / `gate` words into track steps, the report would mis-state note positions and durations.
+- Without a reliable rule for identifying real nodes and converting the `step_token` / `gate` words into track steps, the report would mis-state note positions and durations for pointer-21 events.
 
 ## Latest Investigation (2024-xx-xx)
 - Triad / chord captures (`unnamed_3`, `unnamed_80`) show the pointer tail landing on:

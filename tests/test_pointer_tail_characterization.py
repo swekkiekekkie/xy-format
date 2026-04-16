@@ -25,7 +25,12 @@ def _pointer_events(filename: str):
     events = []
     for info in _track_infos(filename):
         for event in info.events:
-            if event.variant in {"pointer-21", "pointer-tail", "hybrid-tail"}:
+            if event.variant in {
+                "pointer-21",
+                "pointer-tail",
+                "hybrid-tail",
+                "sequential",
+            }:
                 events.append((info.index, event))
     return events
 
@@ -52,15 +57,24 @@ def test_pointer21_fixtures_expose_pointer21_events() -> None:
 
 
 def test_hybrid_tail_chord_fixtures_expose_pointer_references() -> None:
+    # Multi-note 0x25 events on these fixtures are either classified as
+    # ``sequential`` when the unified parser decodes them cleanly, or as
+    # ``hybrid-tail`` when we fall back to the legacy heuristic parser
+    # (device-native tick encoding the unified parser does not yet
+    # handle — ``unnamed 3``). In either case the tail still carries
+    # pointer references for downstream decode work.
     fixtures = [
         "unnamed 3.xy",
         "unnamed 80.xy",
     ]
     for fixture in fixtures:
         pointer_events = _pointer_events(fixture)
-        assert any(event.variant == "hybrid-tail" for _track, event in pointer_events), fixture
+        assert any(
+            event.variant in {"hybrid-tail", "sequential"}
+            for _track, event in pointer_events
+        ), fixture
         for _track, event in pointer_events:
-            if event.variant != "hybrid-tail":
+            if event.variant not in {"hybrid-tail", "sequential"}:
                 continue
             assert event.tail_entries
             assert tail_has_pointer_reference(event.tail_entries)
