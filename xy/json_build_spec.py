@@ -318,9 +318,14 @@ def parse_build_spec(data: object, *, base_dir: Path) -> BuildSpec:
                 f"profile must be one of: {valid} (got {profile_raw!r})"
             )
 
-    tracks_raw = _require_list(obj.get("tracks"), where="tracks")
-    if not tracks_raw:
-        raise ValueError("tracks must contain at least one track entry")
+    # ``tracks`` is optional: header_only and scene_song_tokens profiles
+    # produce track-less specs. Profile validators enforce track-presence
+    # rules specific to each recipe.
+    tracks_raw = obj.get("tracks")
+    if tracks_raw is None:
+        tracks_raw = []
+    else:
+        tracks_raw = _require_list(tracks_raw, where="tracks")
 
     seen_tracks: set[int] = set()
     multi_tracks: List[MultiTrackSpec] = []
