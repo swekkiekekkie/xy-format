@@ -91,3 +91,17 @@ def test_set_preset_matches_device_kit_load():
         if ours[i] != theirs[i]:
             rel = (i - starts[0]) % 17876
             assert rel in UI_OK, f"non-UI residual at image+{i:#x} (track-rel {rel:#x})"
+
+
+def test_spec_to_xy_image_reproduces_whitney_probe():
+    import subprocess, sys, tempfile, os
+    out = os.path.join(tempfile.mkdtemp(), "w.xy")
+    subprocess.run(
+        [sys.executable, "tools/spec_to_xy_image.py",
+         "specs/midi-to-xy/Whitney Houston - I Wanna Dance With Somebody song.json",
+         "-o", out],
+        check=True, capture_output=True,
+    )
+    assert open(out, "rb").read() == open(
+        "output/image-probes/05_e_whitney_img_song.xy", "rb"
+    ).read()

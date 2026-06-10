@@ -171,10 +171,11 @@ enumeration (u16 byte-offsets within the row, from u121/123/124/126):
 | 22 | 11 | Amp Sustain  | | 82 | 41 | Pan |
 | 24 | 12 | Amp Release  | | | | |
 
-(Filter env A/D/S/R and cutoff/reso expected at offsets 26–36 from
-u122/123's T1/T2 lanes — fill in when needed. CC9 "mute" is never
-recorded, matching the capture notes. The old raw-space "param_id"
-bytes and 3/5/9/18-byte entry formats were RLE artifacts.)
+Completed from u122/u123 (same-project diff isolates each lane):
+Poly=+26, Porto=+28, PitchBend=+30, EngineVol=+32, Cutoff=+34,
+Reso=+36, FilterEnvA/D/S/R=+66/68/70/72. CC9 "mute" is never recorded,
+matching the capture notes. The old raw-space "param_id" bytes and
+3/5/9/18-byte entry formats were RLE artifacts.
 
 ### Engine / preset region
 
@@ -208,8 +209,9 @@ reproduces the device file except UI-session bytes.
 
 ## Open
 
-- P-lock param→column table rows 13–18 (filter env / cutoff / reso).
-- Sample-slot internal fields (tune/level/envelope offsets).
+- Sample-slot internal fields (tune/level/envelope offsets) — no
+  sample-edit captures exist in the corpus; needs one device capture
+  session (edit one sample's tune/level on a kit, save, diff).
 - UI session fields (+0x3B3F/+0x3CBF/+0x3DBF/+0x423F families) —
   imitate, don't derive.
 - Naive differ misaligns after insertions; an alignment-aware decoded
