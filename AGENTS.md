@@ -8,6 +8,7 @@
 
 ## Repo Map
 - Docs index: `docs/index.md`
+- State of understanding (dated belief ledger — read before modeling work): `docs/state_of_understanding.md`
 - Manual breakdown text: `docs/OP-XY_project_breakdown.txt`
 - One-off corpus + UI deltas: `src/one-off-changes-from-default/op-xy_project_change_log.md`
 - Workflow docs: `docs/workflows/`

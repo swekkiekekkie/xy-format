@@ -2,6 +2,7 @@
 
 ## Start Here
 - Operating guide: `AGENTS.md`
+- **State of understanding (dated ledger of what we believe/doubt): `docs/state_of_understanding.md`**
 - Roadmap: `docs/roadmap.md`
 - Human explainer: `docs/human-explainer.md`
 

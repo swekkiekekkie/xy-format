@@ -1,0 +1,143 @@
+# State of Understanding
+
+A running ledger of what we believe about the `.xy` format at points in
+time: what got sorted, what we currently think, what remains mysterious,
+and what would falsify or confirm the current theory. Append a new dated
+entry when the picture meaningfully changes; do not rewrite old entries
+(they are the record of what we thought and when).
+
+Format per entry: **Settled** (corpus/device-validated), **Believed**
+(explained in principle, not held to the byte-exact standard yet),
+**Mysteries** (genuinely unknown), **Next decisive test**.
+
+---
+
+## 2026-06-09 — The serialization-model reframe
+
+### One-sentence status
+
+We found the serialization *paradigm* — the file is byte-level
+RLE-compressed little-endian C structs — which retrodicts five months of
+device experiments including most of the crash ledger; it is a reading
+breakthrough, not yet a writing one.
+
+### Settled (corpus/device-validated)
+
+1. **Record boundaries.** The 4-byte "track preamble" was misframed: the
+   leading byte is the *previous* record's trailing byte; `count/bars/F0`
+   head the next record; clones carry no count byte. The entire
+   "preamble state machine" (0x64 propagation, T5 exemption, 0xB5
+   multi-pattern marker — ~50 rules at 98.2%) dissolves into local
+   struct content. Evidence: 687/687 deviations across 206 files.
+2. **Pre-track scene records.** One RLE-compressed 33-byte struct
+   (`selected_pattern[16] + mute[16] + flags`), record 0 = live
+   selection. Replaces the descriptor Scheme A/B apparatus, v56/v57,
+   tokens, short/collapsed forms, and the bleez "record families".
+   Evidence: 245/246 files byte-exact; the one rejected file
+   (`bleez34.xy`) is the one the device also rejects.
+3. **Scene-edit crash mechanics** (crashes #8/#12, probes 59–92): a
+   pre-track edit is safe iff the stream still decodes to n×33 values
+   with the tail byte equal to n. Retroactively predicts every
+   pass/crash in those probe packs.
+4. **Crashes #3/#5/#6** (preamble/T5/T9 families): tail bytes are
+   zero-fill run counts of each record's fixed trailing region — purely
+   local; the cross-track rules were artifacts. 2,224 records, zero
+   unexplained cells.
+5. **Song table.** File footer = 14 slots of
+   `[scene_count][scene_ids…][loop_word]`; loop word `00 01` = on,
+   `01 00` = off (unnamed 150 nl/lp device A/B). Pre-track byte 0x11 =
+   selected song − 1.
+6. **Performance automation lanes** (the 0x60/0x61 tails):
+   `[first_lane][count][v0 u16][vmax u16]` + `(t u16, v u16)` keyframes;
+   lanes PB/MW/AT (vmax 8191/254/254); static lanes count=1. unnamed
+   106–109 MIDI-harness ramps decode to exact 480-tick linear keyframes.
+7. **Track scale** is the 4th signature byte (0x03=1×, 0x05=2×,
+   0x0E=16×, 0x01=½×) — the "signature" is not all magic.
+
+### Believed (explained in principle, not byte-exact-proven)
+
+- **The whole-file RLE claim**: every track body is the same RLE over
+  serialized structs. Converging evidence: gate "token" `F0 00 00 01` =
+  u32 gate of 240 ticks; tick "flag bytes" = zero-run extension counts
+  inside u32 ticks; chord "separators" = zero runs; decoded body sizes
+  grow exactly ~12 bytes/note (RAM note struct
+  `u32 tick; u32 gate; u8 note; u8 vel; u8 ×2`); tail bytes derive as
+  zero-fill extensions (0x63 vs 0x64 = one extra trailing event byte;
+  0x92 vs 0x8A = 8-byte preset field zeroed). **Not yet held to the
+  round-trip standard.**
+- **note==velocity crash** = an unescaped RLE pair; correct encoding is
+  `[n][n][00]`. The velocity nudge treats the symptom. Untested on
+  device.
+- **Crashes #9/#10** (scene track-generalization / insert probes):
+  failure mode is byte-poking inside an RLE stream; individual artifacts
+  not yet re-decoded to show each specific corruption.
+- **P-lock "val ≥ 256" rule (crash #10 family)** likely the same pair
+  phenomenon (val_hi=0 changing byte patterns); not re-derived.
+
+### Mysteries (genuinely unknown)
+
+- **Decoded track-struct field map** — engine params, sample tables
+  (the `FF 00 00` lattices), step components, p-locks as fixed-offset
+  fields in decoded space. Most of the file by volume.
+- **Event type bytes 0x1C–0x2D**: why presets carry different type bytes
+  and what the loader selects on them (crash #2 still only empirical).
+- **Type 0x05/0x07 + `08 00` padding** (crash #1 root): obeyed, not
+  understood; likely falls out of the struct decode.
+- **Pointer-21 / live-recorded note storage** (unnamed 39/120): lanes
+  decoded, live note events not.
+- **Sparse multi-pattern instability** (crash #4/#6 family, u01 vs u02):
+  not re-derived; suspected to reduce to scene/selection-record
+  consistency, but that is a guess.
+- **RLE codec corner cases**: decoder state after an extension byte,
+  runs > 257, and scope boundaries (the unnamed 109 lane boundary needed
+  count-driven reading, not naive RLE). These details decide whether a
+  byte-exact encoder is possible.
+- **Pre-track fixed-header fields** beyond tempo/scene ordinals; handle
+  table semantics; the one extra byte in `unnamed 154b`/`unnamed 156`.
+
+### Practical capability check
+
+"Can we generate files now?" — **Same capability as before this work,
+transformed prospects.** Writers still use validated scaffold paths.
+What changed is that we now know *why* those paths work and why the
+others crashed.
+
+### Next decisive test
+
+Build the full-file RLE codec and run the **246-file round-trip**:
+decode → re-encode → byte-identical. Pass ⇒ authoring becomes struct
+construction (archaeology over). Fail ⇒ the failures point exactly at
+the remaining unknown scopes. Secondary device test: write
+note==velocity with the proper `00` extension byte.
+
+### Pointers
+
+- Canonical model: `docs/format/record_structure.md`
+- Full narrative + validation: `docs/logs/2026-06-09_record_boundary_reframe.md`
+- Decoder tool: `tools/analysis/pretrack_records.py`
+
+---
+
+## Pre-2026-06-09 — The compositional-serializer era (for contrast)
+
+What we thought before the reframe (preserved so the shift is legible):
+
+- The format was modeled as "baseline scaffold + feature-driven edit
+  atoms"; pre-track inserts were catalogued per topology (descriptor
+  Schemes A/B) rather than derived.
+- Preamble byte[0] was modeled as a cross-track state machine (98.2%
+  accuracy with exception families), with hardcoded exemptions (T5) and
+  global markers (0xB5).
+- Scene records were three encoding "families" (tag/alt/matrix + bleez)
+  with partially-understood field couplings; single-byte edits were
+  device-tested one at a time, crashing often.
+- note==velocity was catalogued as a firmware parser bug, worked around
+  with a velocity nudge.
+- Gate/tick encodings were treated as token systems with width flags.
+- Authoring safety came from byte-exact mimicry of device captures
+  (scaffolds, transplants, strict-mode lookups) — effective, but every
+  new topology required new device probes.
+
+The legacy docs (`descriptor_encoding.md`, `preamble_state_machine.md`,
+`scenes_songs.md` §§5–23) remain useful as device-outcome ledgers even
+though their *models* are superseded.
