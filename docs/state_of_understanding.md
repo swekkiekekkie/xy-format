@@ -50,6 +50,19 @@ the RAM struct map; then author a file purely from a constructed image
 (`encode_project`) and device-test it — the model's first generative
 test.
 
+### Update (same day, 4): CAPSTONE — Whitney plays on device
+
+The February crash-saga conversion (Whitney Houston, crashes #4/#5),
+rebuilt from its original spec through `build_arrangement()` — 8 tracks
+× 9 patterns, 1,617 notes, 9 scenes, Song 1 chain, loop on — **loads
+and plays end-to-end on the device** (both probes, user-verified).
+Multi-pattern/scene/song assembly was validated byte-exact against
+j05/j06 before the device test; crash-era ghost placeholders dropped.
+The project's original goal (MIDI → arranged .xy song) is achieved on
+the new foundation. Device's role henceforth: acceptance testing for
+new authoring features and enum-value lookups — no structural
+mysteries remain on the critical path.
+
 ### Update (same day, 3): DEVICE VALIDATION — 3/3 probes pass
 
 User-verified on hardware (2026-06-09, corpus-lab recorded):
