@@ -139,7 +139,11 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Song footer chain + loop word — `build_arrangement`
 - [x] Multi-pattern clone assembly — `build_arrangement`
 - [~] 14 song slots vs guide “9 songs” — partial reconciliation — `opxy_user_guide_save_audit.md`
-- [ ] Scene-stored **track volumes** — gap (guide says they exist)
+- [x] Track mix volume **read** @ track+`0x38FE` (u32 @ `+0x38FB`) —
+  `xy/scene_volume_inspection.py`, P2-D `s0b` fixtures; scene routing partial
+- [x] Master mix volume **read** @ global+`0x94` — same module (`s5b`)
+- [~] Scene-stored volumes **playback** — bytes differ per scene; operator
+  heard global mix on 1.1.4 — needs chained capture retest
 
 ## 11. Mix, saturator, master
 

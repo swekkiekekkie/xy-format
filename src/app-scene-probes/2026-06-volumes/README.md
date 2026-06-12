@@ -1,7 +1,17 @@
-# P2-D — Scene-stored volume fixtures
+# P2-D — Scene volume fixtures
 
-> **Status:** todo
+> **Status:** captured
 
-⬜ **Pending.** See [`user_probes/2026-06-scene-volumes/README.md`](../../../../user_probes/2026-06-scene-volumes/README.md).
+8 files. Use **s0b** series as canonical (distinct scene patterns).
 
-6 files: `s0-baseline-2scenes.xy` … `s5-scene1-master-vol.xy`.
+| File | Finding |
+| --- | --- |
+| `s0b-baseline-2scenes.xy` | default T vol `0x60`, master `0x40` |
+| `s1b-scene1-t1-vol-low.xy` | scene 1 T1 @ T1+0x38FE → `0x00` |
+| `s2b-scene2-t1-vol-high.xy` | scene 2 T1 @ T2+0x38FE → `0x7F` |
+| `s5b-scene1-master-vol.xy` | master @ global+0x94 → `0x7F` |
+| `s0-baseline-2scenes.xy` … | flawed baseline (spurious s2 diffs) |
+
+Log: `docs/logs/2026-06-12_scene_volume_inspection.md`  
+Tests: `tests/test_scene_volume_inspection.py`  
+API: `xy/scene_volume_inspection.py`

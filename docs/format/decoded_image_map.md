@@ -31,6 +31,7 @@ vectors (notes: +12 bytes each).
 | 0x07 | selected song/scene ordinal | u149, u151 |
 | 0x55–0x64 | per-track MIDI channel array, 1 byte/track (T1=0x55 … T16=0x64) | u41, u54 |
 | 0x68 / 0x6C / 0x70 | master EQ low / mid / high (4-byte fields) | u14, u15, u16 |
+| 0x91–0x94 | **master volume** u32 (byte @ 0x94; max `0x7F` / `0x7FFFFFFF`) | P2-D `s5b` |
 
 (Scene records — the 33-byte structs of `record_structure.md` §4 — also
 live in the global region in scene-bearing files.)
@@ -48,6 +49,7 @@ live in the global region in scene-bearing files.)
 | +0x1C | M4/LFO type selector (5 bytes change on LFO swap) | u32 |
 | +0x20 | M4 page on/off | u31, u33 |
 | +0x21 | filter type (SVF/Ladder) | u28 |
+| +0x38FB | **track mix volume** u32 (byte @ +0x38FE; default `0x60`) | P2-D `s1b`/`s2b` |
 | +0x25 | filter on/off | u29 |
 | +0x3057 + 16×(step−1) | **step-component slot, 16 bytes per step**, one byte per component type within the slot (portamento +9, bend +10, tonality +11, jump +12, param +13, conditional +14, …) | u8/u9, u59–u77 |
 | +0x3857 | engine parameter block: 4-byte values (param1 +0x3857, param4 +0x3863, …) | u23–u25, u96 |

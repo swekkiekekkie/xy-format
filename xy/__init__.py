@@ -59,6 +59,15 @@ from .drum_sample_inspection import (  # noqa: F401
     inspect_drum_samples,
     inspect_drum_samples_bytes,
 )
+from .scene_volume_inspection import (  # noqa: F401
+    SceneVolumeInspection,
+    TrackMixVolume,
+    encode_mix_vol_byte,
+    inspect_scene_volumes,
+    inspect_scene_volumes_bytes,
+    read_scene_track_volume,
+    scene_volume_storage_track,
+)
 from .preset_path_inspection import (  # noqa: F401
     ProjectPresetPaths,
     TrackPresetPath,
