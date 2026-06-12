@@ -1748,10 +1748,21 @@ def generate_report(path: Path, data: bytes) -> str:
         for drum_track in drum_samples.tracks:
             lines.append(f"  Track {drum_track.track} (engine 0x{drum_track.engine_id:02X})")
             for voice in drum_track.assigned_paths:
+                gain_s = (
+                    f"gain=0x{voice.gain_u32:08X}"
+                    if voice.gain_u32
+                    else "gain=0"
+                )
+                fade_s = (
+                    f"fade={voice.loop_fade_ui}"
+                    if voice.loop_fade_ui
+                    else "fade=0"
+                )
                 lines.append(
                     f"    v{voice.voice:02d}: {voice.path}  "
-                    f"tune={voice.tune} key={voice.key_assignment} mode={voice.play_mode} "
-                    f"pan={voice.pan}"
+                    f"tune={voice.tune_semitones:+d} key={voice.key_assignment} "
+                    f"mode={voice.play_mode} dir={voice.direction_label} pan={voice.pan} "
+                    f"start={voice.start} end=0x{voice.end:08X} {gain_s} {fade_s}"
                 )
         lines.append("")
 

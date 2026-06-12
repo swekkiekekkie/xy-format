@@ -9,7 +9,8 @@
   short `category/name` strings; works on blank patterns.
 - Active track/pattern preset-reference inference when project bodies expose
   preset folder or fragmented preset-name strings (`xy/project_inspection.py`).
-- Drum-engine track sample paths (24-voice table via `xy/drum_sample_inspection.py`).
+- Drum-engine track voices: paths plus tune/play/direction/pan/start/end/gain/fade
+  (`xy/drum_sample_inspection.py`).
 - Per-track scan and event summaries.
 - EQ/global snippets.
 

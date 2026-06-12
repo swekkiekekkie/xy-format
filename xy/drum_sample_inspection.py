@@ -1,9 +1,8 @@
-"""Read drum-sampler voice sample paths from a decoded project image.
+"""Read drum-sampler voice sample paths and per-voice edit params from a decoded project image.
 
-Drum voices are 24 slots × 128 bytes at track struct +0x3957; the sample
-path string starts at slot +0x08 (see docs/format/decoded_image_map.md).
-This module reads from the decoded RAM image (via ``ImageProject``), not
-from scaffold logical-entry bodies, which are shorter track-block slices.
+Drum voices are 24 slots × 128 bytes at track struct +0x3957 (see
+``docs/format/decoded_image_map.md``). This module reads from the decoded RAM
+image (via ``ImageProject``), not from scaffold logical-entry bodies.
 """
 
 from __future__ import annotations
@@ -16,10 +15,17 @@ from .rle import decode_project
 DRUM_ENGINE_ID = 0x03
 DRUM_TABLE_OFFSET = 0x3957
 DRUM_SLOT_SIZE = 0x80
-DRUM_PATH_OFFSET = 0x08
+DRUM_TUNE_OFFSET = 0x00
+DRUM_KEY_OFFSET = 0x02
+DRUM_PLAY_MODE_OFFSET = 0x03
 DRUM_PAN_OFFSET = 0x06
+DRUM_DIRECTION_OFFSET = 0x07
+DRUM_PATH_OFFSET = 0x08
+DRUM_START_OFFSET = 0x68
+DRUM_END_OFFSET = 0x70
 DRUM_GAIN_OFFSET = 0x7C
 DRUM_VOICE_COUNT = 24
+DRUM_TUNE_CENTER = 0x3C
 ENGINE_ID_OFFSET = 0x14
 # Loop-crossfade UI 0..99 → u32 at preceding voice slot +0x7C (M3 probes).
 DRUM_FADE_STEP = 0x0147AF00
@@ -51,6 +57,11 @@ def drum_fade_storage_voice(edited_voice: int) -> int:
     return edited_voice - 1
 
 
+def decode_drum_tune_semitones(tune_byte: int) -> int:
+    """Decode drum tune byte @ slot+0x00 to semitones from center (0x3C)."""
+    return tune_byte - DRUM_TUNE_CENTER
+
+
 @dataclass(frozen=True)
 class DrumVoiceSample:
     voice: int
@@ -58,12 +69,29 @@ class DrumVoiceSample:
     tune: int
     key_assignment: int
     play_mode: int
+    direction: int  # 0=forward, 1=backward @ slot+0x07
     pan: int  # signed byte @ slot+0x06 (device ±100)
-    slot_gain_u32: int  # u32 @ slot+0x7C (gain / loop-crossfade field)
+    start: int  # u32 @ slot+0x68
+    end: int  # u32 @ slot+0x70
+    slot_gain_u32: int  # u32 @ slot+0x7C (gain knob; also fade storage for next pad)
+    loop_fade_ui: int  # loop-crossfade for this pad (decoded from preceding slot +0x7C)
+
+    @property
+    def tune_semitones(self) -> int:
+        return decode_drum_tune_semitones(self.tune)
+
+    @property
+    def direction_label(self) -> str:
+        return "backward" if self.direction else "forward"
+
+    @property
+    def gain_u32(self) -> int:
+        """Sample gain u32 on this pad's slot +0x7C (shares offset with next pad's fade storage)."""
+        return self.slot_gain_u32
 
     @property
     def fade_ui(self) -> int:
-        """Loop-crossfade UI decoded from this slot's +0x7C u32."""
+        """Loop-crossfade UI decoded from this slot's +0x7C u32 (fade storage for the *next* pad)."""
         return decode_drum_fade_u32(self.slot_gain_u32)
 
 
@@ -109,20 +137,39 @@ def inspect_drum_samples(project: ImageProject) -> ProjectDrumSamples:
 
 def _read_voice_table(project: ImageProject, track: int) -> tuple[DrumVoiceSample, ...]:
     base = project.track_start(track) + DRUM_TABLE_OFFSET
-    voices: list[DrumVoiceSample] = []
+    raw_slots: list[bytes] = []
     for voice in range(DRUM_VOICE_COUNT):
-        slot = project.image[base + voice * DRUM_SLOT_SIZE : base + (voice + 1) * DRUM_SLOT_SIZE]
+        raw_slots.append(
+            project.image[base + voice * DRUM_SLOT_SIZE : base + (voice + 1) * DRUM_SLOT_SIZE]
+        )
+
+    voices: list[DrumVoiceSample] = []
+    for voice, slot in enumerate(raw_slots):
+        slot_gain_u32 = int.from_bytes(
+            slot[DRUM_GAIN_OFFSET : DRUM_GAIN_OFFSET + 4], "little"
+        )
+        if voice == 0:
+            loop_fade_ui = 0
+        else:
+            prev_gain = int.from_bytes(
+                raw_slots[voice - 1][DRUM_GAIN_OFFSET : DRUM_GAIN_OFFSET + 4], "little"
+            )
+            loop_fade_ui = decode_drum_fade_u32(prev_gain)
         voices.append(
             DrumVoiceSample(
                 voice=voice,
                 path=_read_path(slot),
-                tune=slot[0],
-                key_assignment=slot[2],
-                play_mode=slot[3],
+                tune=slot[DRUM_TUNE_OFFSET],
+                key_assignment=slot[DRUM_KEY_OFFSET],
+                play_mode=slot[DRUM_PLAY_MODE_OFFSET],
+                direction=slot[DRUM_DIRECTION_OFFSET],
                 pan=_signed_byte(slot[DRUM_PAN_OFFSET]),
-                slot_gain_u32=int.from_bytes(
-                    slot[DRUM_GAIN_OFFSET : DRUM_GAIN_OFFSET + 4], "little"
+                start=int.from_bytes(
+                    slot[DRUM_START_OFFSET : DRUM_START_OFFSET + 4], "little"
                 ),
+                end=int.from_bytes(slot[DRUM_END_OFFSET : DRUM_END_OFFSET + 4], "little"),
+                slot_gain_u32=slot_gain_u32,
+                loop_fade_ui=loop_fade_ui,
             )
         )
     return tuple(voices)

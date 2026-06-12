@@ -54,6 +54,7 @@ from .drum_sample_inspection import (  # noqa: F401
     DrumVoiceSample,
     ProjectDrumSamples,
     decode_drum_fade_u32,
+    decode_drum_tune_semitones,
     drum_fade_storage_voice,
     encode_drum_fade_ui,
     inspect_drum_samples,

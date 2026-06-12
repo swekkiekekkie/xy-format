@@ -121,7 +121,9 @@ Field offsets: `docs/format/decoded_image_map.md`.
   `tests/test_drum_sample_inspection.py`, `tests/test_drum_sample_inspection_round0.py`
 - [~] Sample path **write** — only as part of donor `set_preset` region copy; no
   `set_drum_voice_path()` yet — `docs/format/drum_sample_paths.md`
-- [x] Tune, play mode, direction, start, end, gain — `set_drum_voice` (tune device-validated)
+- [x] Tune, play mode, direction, start, end, gain — `set_drum_voice` (tune device-validated);
+  **read** via `DrumVoiceSample` (`tune_semitones`, `direction`, `start`, `end`, `gain_u32`) —
+  `tests/test_drum_voice_params_inspection.py` (`cap_drum_params.xy`)
 - [x] Pan read/write @ slot `+0x06` — device ±100, `tests/test_drum_pan_fade_inspection.py`
 - [x] Fade / loop-crossfade @ preceding voice `+0x7C` — `fade_ui`, `encode_drum_fade_ui`,
   `set_drum_voice(..., fade=)`; v23 UI → v22 storage; 21 fade fixtures in

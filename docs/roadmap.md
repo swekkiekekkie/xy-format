@@ -90,6 +90,7 @@ Goal: **reliably answer “what does this project contain?”** without manual h
 | Structural preset path @ `+0x453F` | `xy/preset_path_inspection.py`, P1-B |
 | Drum sample paths (24 voices) | `xy/drum_sample_inspection.py`, M1 |
 | Drum pan / fade | `xy/drum_sample_inspection.py`, M3 |
+| Drum per-voice params read (tune/play/dir/start/end/gain/fade) | `drum_sample_inspection`, `cap_drum_params.xy` |
 | Static mixer + master buses | `xy/mixer_static_inspection.py`, P2-A |
 | Scene-stored volumes (bytes; playback **~**) | `xy/scene_volume_inspection.py`, P2-D |
 | Scene track mutes (scenes 1–8) | `scene_mute_storage_slot`, `read_scene_muted_tracks`, P2-E |
@@ -106,7 +107,6 @@ Goal: **reliably answer “what does this project contain?”** without manual h
 | Priority | Item | Depends on |
 | --- | --- | --- |
 | P1 | Export preset refs + drum paths in `project_to_json` | Golden fixtures (P1-A) |
-| P1 | Drum per-voice param read API (start/end/direction/gain) | extend `drum_sample_inspection` |
 | P2 | One-shot sampler slot decode | ✅ P2-B |
 | P2 | Multisampler zones | P2-C (defer — no external presets) |
 | P3 | Auxiliary tracks T9–T16 semantics | P3-A |
@@ -295,12 +295,11 @@ for features you care about.
 
 For **you + this repo right now**:
 
-1. **Drum read API** — expose start/end/direction/gain in `drum_sample_inspection`
-2. **P1-A** `project_to_json` golden export (preset + drum + sampler slots)
-4. Implement **`set_drum_voice_path`** + device roundtrip
-5. **P3-A** aux tracks or **M6** pad→voice map if non-`pp` kits needed
-6. Open **upstream PR** for inspection stack; wire **`opxy_mtp_manager`**
-7. Chip **Phase 5** Wave A; **midi_to_xy v2** when edit surface is broad enough
+1. **P1-A** `project_to_json` golden export (preset + drum + sampler slots)
+2. Implement **`set_drum_voice_path`** + device roundtrip
+3. **P3-A** aux tracks or **M6** pad→voice map if non-`pp` kits needed
+4. Open **upstream PR** for inspection stack; wire **`opxy_mtp_manager`**
+5. Chip **Phase 5** Wave A; **midi_to_xy v2** when edit surface is broad enough
 
 ---
 

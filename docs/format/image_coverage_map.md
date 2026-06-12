@@ -156,7 +156,7 @@ track unless noted.
 
 | +Offset | Status | Field | Probe |
 | --- | --- | --- | --- |
-| `+0x3957` | **x** | Drum/sampler **24×128 B** voice table | M1 sample paths, M3 pan/fade |
+| `+0x3957` | **x** | Drum/sampler **24×128 B** voice table | M1 paths, M3 pan/fade, cap_drum_params read API |
 | slot `+0x00` | **x** | Tune | device |
 | slot `+0x03` | **x** | Play mode | — |
 | slot `+0x06` | **x** | Pan | M3 |

@@ -245,7 +245,8 @@ only +0x70 (end), shaker/ch-b moved +0x00 (tune ±48), ht +0x03
 (play mode), lc +0x07 (direction), cow +0x7c (gain max). The +0x68/+0x70
 pair co-moving on several voices is a loop/fade side-effect, not start vs
 end. `ImageProject.set_drum_voice()` writes tune/play_mode/direction/
-start/end/gain (validated: tune reproduces the capture byte-exact).
+start/end/gain (validated: tune reproduces the capture byte-exact). Read API:
+`xy/drum_sample_inspection.py` (`DrumVoiceSample`, `inspect_drum_samples`).
 
 ### One-shot Sampler (`0x02`) — sample-edit header (P2-B)
 

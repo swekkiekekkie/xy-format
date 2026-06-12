@@ -58,6 +58,7 @@ def test_baseline_voice23_is_neutral_pan() -> None:
     voice = _voice(BASELINE)
     assert voice.key_assignment == 53
     assert voice.pan == 0
+    assert voice.loop_fade_ui == 0
     assert _storage_voice(BASELINE).fade_ui == 0
 
 
@@ -81,7 +82,9 @@ def test_pan_hard_left_and_right_are_isolated_on_voice23() -> None:
 def test_fade_ui_decodes_from_storage_voice(filename: str, ui: int) -> None:
     path = PROBES / filename
     storage = _storage_voice(path)
+    edited = _voice(path)
     assert storage.fade_ui == ui
+    assert edited.loop_fade_ui == ui
     assert decode_drum_fade_u32(storage.slot_gain_u32) == ui
 
 
