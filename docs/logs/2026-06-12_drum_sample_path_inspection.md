@@ -1,46 +1,82 @@
 # 2026-06-12 Drum sample path inspection
 
-App-driven probe for library-manager sample reference readout: which sample
-path string is assigned to each of the 24 drum-sampler voices on a track.
+Read-only extraction of per-voice sample path strings from the drum sampler
+table (24 × 128 B at track `+0x3957`, path at slot `+0x08`).
 
-AI-assisted analysis and implementation; claims are fixture-backed.
+AI-assisted implementation; claims are fixture-backed (round 1 captures below).
 
-## Capture procedure (Mission 1)
+## Round 1 captures (canonical)
 
-Firmware 1.1.4. Track 1, drum preset `pp`, no pattern notes.
+Operator README:
+`opxy_mtp_manager/.../user_probes/2026-06-sample-paths/README.md`.
 
-1. Save baseline `c0-baseline`.
-2. For each variant, reopen baseline, change **one** drum voice sample, save as
-   new file (do not chain variants).
+| File | Pad (UI) | Voice | MIDI key | Sample | Slot path |
+|------|----------|-------|----------|--------|-----------|
+| `c1-baseline-pp.xy` | — | — | — | `pp` kit | all `…/pp.preset/unnamed-….wav` |
+| `c1-pad01-lowf-v23-chi-box.xy` | 1, leftmost **low F** | **23** | 53 F3 | chi box | `content/samples/perc/chi box.wav` |
+| `c1-pad02-v00-chi-cham.xy` | 2 | **0** | 54 F#3 | chi cham | `content/samples/perc/chi cham.wav` |
+| `c1-pad03-v01-chi-flet.xy` | 3 | **1** | 55 G3 | chi flet | `content/samples/perc/chi flet.wav` |
 
-On-device names were `c0-1` … `c0-4` for MTP ergonomics; renamed on PC to the
-`src/app-sample-probes/2026-06-sample-paths/` names in the fixture README.
+Each variant is saved from baseline with **one** voice changed; decoded diffs
+confirm single-slot isolation.
 
-Operator notes recorded sample labels as `nt-z-fx/unnamed-a2-3` etc. Decoded
-paths include the full `/fat32/presets/.../*.wav` string at drum slot +0x08.
+## Pad index vs voice index (`pp` kit)
 
-## Findings
+The OP-XY drum grid is **not** “voice 0 = leftmost pad” for this kit.
 
-- Sample paths are **not** generic `/fat32/samples/...` loose files in these
-  captures; assignments reference preset-nested wav paths such as
-  `/fat32/presets/drum/pp.preset/unnamed-f#2-31.wav` and
-  `/fat32/presets/fx/nt-z-fx.preset/unnamed-a3-3.wav`.
-- Storage matches the device-decoded drum table: 24 × 128 B at track+0x3957,
-  path at slot+0x08 (`docs/format/decoded_image_map.md`).
-- Single-voice edits produce isolated diffs in exactly one slot (verified for
-  voices 0, 1, and 23).
-- **Capture correction:** `c1-v23-fx-a2-3.xy` changed voice **23**, not voice
-  0 as the original field script intended. Tests use the decoded truth.
+On `pp`, the **leftmost keyboard pad (low F)** maps to **voice 23** (lowest
+key in the 24-slot table). The next pad right is voice 0 (F#3), then voice 1
+(G3), and so on. Only indices **0–23** exist.
+
+Generic docs sometimes describe “v0 kick … v23 chi” as a factory layout story;
+**kit `pp` permutes keys** so the lowest physical pad is slot 23.
+
+## Path anatomy: preset-nested vs library-relative
+
+### Kit-embedded samples (`pp` defaults)
+
+```
+/fat32/presets/drum/pp.preset/unnamed-f#2-31.wav
+                 ^^              ^^^^^^^^^^^^^^^
+           preset bundle    opaque generated name
+```
+
+The **drum preset name** (`pp`) is part of the path. User-added kits often
+keep the `unnamed-…` pattern, which makes eyeballing assignments hard.
+
+### Built-in / browser picks (`perc/chi *`)
+
+```
+content/samples/perc/chi box.wav
+                ^^^^ ^^^^^^^^^^^
+         sample folder   display name
+```
+
+- `perc` here is the **sample library category**, not a `.preset` file.
+- The slot does **not** become `/fat32/presets/drum/perc.preset/...`.
+- Track-level kit string remains `drum/pp` (~`+0x453F`) while individual
+  voices can point at `content/samples/...` paths.
+
+Fragment strings (`chi box`, `perc/chi box.wav`) may also appear elsewhere in
+the track image (browser/history); authoritative assignment is the **voice
+slot path at `+0x08`**.
 
 ## Implementation
 
-- `xy/drum_sample_inspection.py` reads paths from the decoded RAM image via
-  `ImageProject` track struct bases (not scaffold logical-entry bodies).
-- `tools/inspect_xy.py` prints `[Drum Samples]` for drum-engine tracks.
+- `xy/drum_sample_inspection.py` — reads paths from decoded RAM image via
+  `ImageProject` track bases (not scaffold logical-entry bodies).
+- `tools/inspect_xy.py` — `[Drum Samples]` section.
 - Tests: `tests/test_drum_sample_inspection.py`.
+
+## Round 0 (superseded)
+
+Earlier captures using `nt-z-fx` user presets and `unnamed-…` samples.
+Archived in user_probes `archive-round0-nt-z-fx/`. Round 1 replaced them with
+named built-in `perc/chi *` samples for verifiability.
 
 ## Open questions
 
-- Read path for sampler / multisampler non-drum engines (different table layout).
-- Whether standalone `/fat32/samples/...` paths appear when samples are picked
-  outside preset folders (needs a follow-up probe).
+- Sampler / multisampler non-drum path layout.
+- Whether user `.preset` drum kits always use `/fat32/presets/drum/<kit>.preset/…`
+  or can emit `content/samples/…` for some slots.
+- Full pad-grid → voice-index map for kits other than `pp`.

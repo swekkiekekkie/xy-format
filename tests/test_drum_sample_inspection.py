@@ -5,6 +5,7 @@ from xy.drum_sample_inspection import inspect_drum_samples_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBES = ROOT / "src" / "app-sample-probes" / "2026-06-sample-paths"
+BASELINE = PROBES / "c1-baseline-pp.xy"
 
 
 def _track1_voices(path: Path):
@@ -14,21 +15,21 @@ def _track1_voices(path: Path):
     return by_track[1].voices
 
 
-def test_baseline_pp_kit_voice_paths() -> None:
-    voices = _track1_voices(PROBES / "c0-baseline.xy")
+def test_baseline_pp_kit_uses_preset_nested_paths() -> None:
+    voices = _track1_voices(BASELINE)
 
-    assert voices[0].path == "/fat32/presets/drum/pp.preset/unnamed-f#2-31.wav"
-    assert voices[1].path == "/fat32/presets/drum/pp.preset/unnamed-g2-31.wav"
-    assert voices[2].path == "/fat32/presets/drum/pp.preset/unnamed-g#2-31.wav"
+    assert voices[0].path.startswith("/fat32/presets/drum/pp.preset/")
+    assert voices[23].path.startswith("/fat32/presets/drum/pp.preset/")
+    assert voices[23].key_assignment == 53  # low F pad on pp kit
     assert len(voices) == 24
 
 
-def test_single_voice_swap_to_fx_sample_is_isolated() -> None:
-    baseline = _track1_voices(PROBES / "c0-baseline.xy")
+def test_builtin_perc_assignments_are_isolated_by_voice() -> None:
+    baseline = _track1_voices(BASELINE)
     cases = [
-        ("c1-v23-fx-a2-3.xy", 23, "/fat32/presets/fx/nt-z-fx.preset/unnamed-a2-3.wav"),
-        ("c2-v00-fx-a3-3.xy", 0, "/fat32/presets/fx/nt-z-fx.preset/unnamed-a3-3.wav"),
-        ("c3-v01-fx-b2-4.xy", 1, "/fat32/presets/fx/nt-z-fx.preset/unnamed-b2-4.wav"),
+        ("c1-pad01-lowf-v23-chi-box.xy", 23, "content/samples/perc/chi box.wav"),
+        ("c1-pad02-v00-chi-cham.xy", 0, "content/samples/perc/chi cham.wav"),
+        ("c1-pad03-v01-chi-flet.xy", 1, "content/samples/perc/chi flet.wav"),
     ]
 
     for filename, voice, expected_path in cases:
