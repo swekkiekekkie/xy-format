@@ -3,7 +3,7 @@
 > **Status:** captured
 
 **Capture procedure:**
-[`user_probes/2026-06-saturator/README.md`](../../../../user_probes/2026-06-saturator/README.md)
+capture recipe in [`docs/workflows/phase_1_2_fixture_generation_plan.md`](../../../../docs/workflows/phase_1_2_fixture_generation_plan.md)
 
 9 files. Level bytes @ `0x78` / `0x7C` / `0x80` / `0x84` (mixer-style `u32+3`).
 

@@ -8,4 +8,4 @@
 | --- | --- | --- |
 | [`2026-06/`](2026-06/) | P3-B | **todo** |
 
-Operator captures: `user_probes/2026-06-players/`
+Operator captures: this fixture pack

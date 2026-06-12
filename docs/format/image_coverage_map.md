@@ -228,7 +228,8 @@ and **sampler zone internals**.
 | `2026-06-aux-tracks` | P3-A | T9–T16 structs | **todo** |
 | `2026-06-players` | P3-B | player state | **todo** |
 
-Operator READMEs: `opxy_mtp_manager/reference_material/user_probes/`.
+Operator capture recipes: `docs/workflows/phase_1_2_fixture_generation_plan.md`.
+Promoted fixtures: `src/app-*-probes/`.
 
 ---
 
@@ -252,7 +253,7 @@ When a probe lands:
 1. Add a row or upgrade **?** → **~** → **x** in this file.
 2. Pin offset + evidence in [`decoded_image_map.md`](decoded_image_map.md).
 3. Check API box in [`parse_capability_checklist.md`](../parse_capability_checklist.md).
-4. Link log under `docs/logs/` and probe README under `user_probes/`.
+4. Link log under `docs/logs/` and fixture README under `src/app-*-probes/`.
 
 ---
 

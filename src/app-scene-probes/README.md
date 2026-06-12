@@ -11,4 +11,4 @@ Scene-specific storage: per-scene volumes, pattern selection, and track mutes.
 | [`2026-06-volumes/`](2026-06-volumes/) | P2-D | **captured** |
 | [`2026-06-track-mutes/`](2026-06-track-mutes/) | P2-E | **partial** (scene 1) |
 
-Operator captures: `user_probes/2026-06-scene-volumes/`, `user_probes/2026-06-track-mutes/`
+Operator captures: this fixture pack, this fixture pack

@@ -1,7 +1,7 @@
 # 2026-06-12 P2-D — Scene-stored track volumes
 
 Fixtures: `src/app-scene-probes/2026-06-volumes/`  
-Operator notes: `user_probes/2026-06-scene-volumes/README.md`
+Operator notes: `src/app-scene-probes/2026-06-volumes/README.md`
 
 ## Setup
 

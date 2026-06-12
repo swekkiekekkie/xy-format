@@ -3,7 +3,7 @@
 > **Status:** captured
 
 **Capture procedure:**
-[`user_probes/2026-06-eq/README.md`](../../../../user_probes/2026-06-eq/README.md)
+capture recipe in [`docs/workflows/phase_1_2_fixture_generation_plan.md`](../../../../docs/workflows/phase_1_2_fixture_generation_plan.md)
 
 9 files. Global header `0x68` / `0x6C` / `0x70`; level byte @ field start.
 

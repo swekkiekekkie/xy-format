@@ -4,5 +4,5 @@
 
 40 files. T1 engine/preset sweep (Axis … Wavetable).
 
-Operator notes: `user_probes/2026-06-phase-b/README.md`  
+Operator notes: this fixture pack  
 Tests: `tests/test_project_inspection.py`

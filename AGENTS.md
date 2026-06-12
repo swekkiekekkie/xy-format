@@ -26,6 +26,7 @@
 - Prior long-form notebook snapshot: `docs/logs/2026-02-13_agents_legacy_snapshot.md`
 - **Roadmap (phases, missions, exit criteria): `docs/roadmap.md`**
 - Parse & author checklist: `docs/parse_capability_checklist.md`
+- Contributor inspection workflow: `docs/workflows/contributor_inspection_workflow.md`
 
 ## Operating Norms
 - Keep generated device test filenames short and sortable.

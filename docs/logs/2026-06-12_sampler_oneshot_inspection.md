@@ -3,7 +3,7 @@
 **Date:** 2026-06-12  
 **Firmware:** 1.1.4  
 **Fixtures:** `src/app-sampler-probes/2026-06-oneshot/` (`g0.xy`–`g14.xy`)  
-**Operator README:** `user_probes/2026-06-sampler-oneshot/README.md`
+**Operator README:** `src/app-sampler-probes/2026-06-oneshot/README.md`
 
 ## Summary
 

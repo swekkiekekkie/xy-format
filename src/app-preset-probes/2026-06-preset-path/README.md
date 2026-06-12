@@ -3,7 +3,7 @@
 > **Status:** captured
 
 **Capture procedure:**
-[`user_probes/2026-06-preset-path/README.md`](../../../../user_probes/2026-06-preset-path/README.md)
+capture recipe in [`docs/workflows/phase_1_2_fixture_generation_plan.md`](../../../../docs/workflows/phase_1_2_fixture_generation_plan.md)
 
 6 files. T1 preset identity @ struct `+0x453F` (`category/preset-name`).
 

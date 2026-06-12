@@ -3,7 +3,7 @@
 **Date:** 2026-06-12  
 **Firmware:** 1.1.4  
 **Fixtures:** `src/app-mixer-probes/2026-06-eq/`  
-**Operator README:** `user_probes/2026-06-eq/README.md`
+**Operator README:** `src/app-mixer-probes/2026-06-eq/README.md`
 
 ## Summary
 

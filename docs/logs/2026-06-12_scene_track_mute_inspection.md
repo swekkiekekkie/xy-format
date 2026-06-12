@@ -3,7 +3,7 @@
 **Date:** 2026-06-12  
 **Firmware:** 1.1.4  
 **Fixtures:** `src/app-scene-probes/2026-06-track-mutes/`  
-**Operator README:** `user_probes/2026-06-track-mutes/README.md`
+**Operator README:** `src/app-scene-probes/2026-06-track-mutes/README.md`
 
 ## Summary
 

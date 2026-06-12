@@ -1,7 +1,7 @@
 # 2026-06-12 P2-A — Static mixer fields (f0–f24)
 
 Fixtures: `src/app-mixer-probes/2026-06-static/`  
-Operator notes: `user_probes/2026-06-mixer-static/README.md`
+Operator notes: `src/app-mixer-probes/2026-06-static/README.md`
 
 Firmware 1.1.4. New project, T1 default engine, no p-locks, no pattern notes.
 

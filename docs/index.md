@@ -4,11 +4,11 @@
 - Operating guide: `AGENTS.md`
 - **Parse & author capability checklist: `docs/parse_capability_checklist.md`**
 - **State of understanding (dated ledger of what we believe/doubt): `docs/state_of_understanding.md`**
-- **Parse & author capability checklist: `docs/parse_capability_checklist.md`**
 - Roadmap: `docs/roadmap.md`
 - Human explainer: `docs/human-explainer.md`
 
 ## Workflows
+- **Contributor inspection workflow (2026-06): `docs/workflows/contributor_inspection_workflow.md`**
 - **Phase 1 & 2 fixture generation plan: `docs/workflows/phase_1_2_fixture_generation_plan.md`**
 - Device test naming: `docs/workflows/device_test_naming.md`
 - Inspector sweep: `docs/workflows/inspector_sweep.md`
@@ -91,7 +91,6 @@ Reference material:
 - Sparse topology stability issue: `docs/issues/sparse_topology_stability.md`
 
 ## Logs
-- Parse capability checklist: `docs/parse_capability_checklist.md`
 - App preset probe inspection: `docs/logs/2026-06-09_app_preset_probe_inspection.md`
 - Drum sample path inspection: `docs/logs/2026-06-12_drum_sample_path_inspection.md`
 - Round 0 `nt-z-fx` sample paths: `docs/logs/2026-06-12_round0_nt-z-fx_sample_paths.md`
@@ -99,7 +98,12 @@ Reference material:
 - Drum voice param read API: `docs/logs/2026-06-12_drum_voice_param_read_api.md`
 - Preset path structural (P1-B): `docs/logs/2026-06-12_preset_path_structural.md`
 - Scene volume inspection (P2-D): `docs/logs/2026-06-12_scene_volume_inspection.md`
-- Mixer static inspection (P2-A partial): `docs/logs/2026-06-12_mixer_static_inspection.md`
+- Scene track mute inspection (P2-E): `docs/logs/2026-06-12_scene_track_mute_inspection.md`
+- Mixer static inspection (P2-A): `docs/logs/2026-06-12_mixer_static_inspection.md`
+- Master EQ inspection (P2-F): `docs/logs/2026-06-12_master_eq_inspection.md`
+- Master EQ blend/power: `docs/logs/2026-06-12_master_eq_blend_inspection.md`
+- Master saturator inspection (P2-G): `docs/logs/2026-06-12_master_saturator_inspection.md`
+- Sampler one-shot inspection (P2-B): `docs/logs/2026-06-12_sampler_oneshot_inspection.md`
 - Variable-length + writer root cause: `docs/logs/2025-02-11_variable_length_and_writer_root_cause.md`
 - Firmware package notes: `docs/logs/2025-02-14_firmware_package_notes.md`
 - Multi-pattern breakthrough: `docs/logs/2026-02-12_multipattern_breakthrough.md`

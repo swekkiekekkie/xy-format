@@ -3,7 +3,7 @@
 > **Status:** captured
 
 **Capture procedure:**
-[`user_probes/2026-06-drum-pan-fade/README.md`](../../../../user_probes/2026-06-drum-pan-fade/README.md)
+capture recipe in [`docs/workflows/phase_1_2_fixture_generation_plan.md`](../../../../docs/workflows/phase_1_2_fixture_generation_plan.md)
 
 24 files. T1 drum `pp`, voice **23** (low F kick, key 53). Fade stored on **v22**.
 

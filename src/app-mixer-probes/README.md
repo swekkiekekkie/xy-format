@@ -12,5 +12,5 @@ Device-authored `.xy` captures for master mix field decode.
 | [`2026-06-eq/`](2026-06-eq/) | P2-F | **captured** |
 | [`2026-06-saturator/`](2026-06-saturator/) | P2-G | **captured** |
 
-Operator captures: `user_probes/2026-06-mixer-static/`, `user_probes/2026-06-eq/`,
-`user_probes/2026-06-saturator/`
+Operator captures: this fixture pack, this fixture pack,
+this fixture pack

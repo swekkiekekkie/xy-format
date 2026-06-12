@@ -3,7 +3,7 @@
 > **Status:** captured (scene 1 + scene 2–8)
 
 **Capture procedure:**
-[`user_probes/2026-06-track-mutes/README.md`](../../../../user_probes/2026-06-track-mutes/README.md)
+capture recipe in [`docs/workflows/phase_1_2_fixture_generation_plan.md`](../../../../docs/workflows/phase_1_2_fixture_generation_plan.md)
 
 ### Scene 1 (single-scene)
 
