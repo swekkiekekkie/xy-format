@@ -12,6 +12,36 @@ device-validated.
 | `[~]` | Partial — location or heuristic known; enums/scaling/edge cases open |
 | `[ ]` | Not implemented or not pinned to stable offsets |
 
+**Evidence tiers** (use in logs and when marking `[~]`)
+
+| Tier | Meaning | Required citation |
+| --- | --- | --- |
+| **E0** | Code path only — no fixture | module + unit test or corpus-only diff |
+| **E1** | Corpus diff | `src/one-off-changes-from-default/` or change log |
+| **E2** | Device probe + in-repo fixture | `src/app-*-probes/` + `tests/test_*` + dated log |
+| **E3** | Device load validated | E2 + operator pass note or `corpus_lab record` |
+
+Every `[x]` row below should cite at least **E1**; prefer **E2** for guide-visible
+fields. Heuristic reads must say so and stay `[~]` until structural decode exists.
+
+**Citation format** (inline): `evidence: tests/foo.py · log · fixtures/pack`
+
+**Inspection module index** (2026-06 read APIs)
+
+| Module | Tests | Primary log | Fixtures |
+| --- | --- | --- | --- |
+| `xy/project_inspection.py` | `test_project_inspection.py` | `2026-06-09_app_preset_probe_inspection.md` | `app-preset-probes/` |
+| `xy/preset_path_inspection.py` | `test_preset_path_structural.py` | `2026-06-12_preset_path_structural.md` | `2026-06-preset-path/` |
+| `xy/drum_sample_inspection.py` | `test_drum_sample_inspection*.py`, `test_drum_pan_fade_inspection.py`, `test_drum_voice_params_inspection.py` | `2026-06-12_drum_sample_path_inspection.md` | `2026-06-sample-paths/`, `2026-06-drum-pan-fade/` |
+| `xy/mixer_static_inspection.py` | `test_mixer_static_inspection.py` | `2026-06-12_mixer_static_inspection.md` | `2026-06-static/` |
+| `xy/scene_volume_inspection.py` | `test_scene_volume_inspection.py` | `2026-06-12_scene_volume_inspection.md` | `2026-06-volumes/` |
+| scene mutes (same module) | `test_scene_track_mute_inspection.py` | `2026-06-12_scene_track_mute_inspection.md` | `2026-06-track-mutes/` |
+| `xy/master_eq_inspection.py` | `test_master_eq_inspection.py` | `2026-06-12_master_eq_inspection.md` | `2026-06-eq/` |
+| `xy/master_saturator_inspection.py` | `test_master_saturator_inspection.py` | `2026-06-12_master_saturator_inspection.md` | `2026-06-saturator/` |
+| `xy/sampler_sample_inspection.py` | `test_sampler_sample_inspection.py` | `2026-06-12_sampler_oneshot_inspection.md` | `2026-06-oneshot/` |
+
+Contributor workflow: `docs/workflows/contributor_inspection_workflow.md`.
+
 **Primary code paths**
 
 | Layer | Read / inspect | Write |
@@ -27,6 +57,10 @@ device-validated.
 | Preset reference inference | `xy/project_inspection.py` | `ImageProject.set_preset` (donor copy) |
 | Track preset path @ `+0x453F` | `xy/preset_path_inspection.py` | gap — donor `set_preset` only |
 | Drum sample path read | `xy/drum_sample_inspection.py` | indirect via `set_preset`; no per-slot path API |
+| Static mixer / master bus read | `xy/mixer_static_inspection.py` | gap |
+| Scene volumes + mutes read | `xy/scene_volume_inspection.py` | partial write via `build_arrangement` |
+| Master EQ / saturator read | `xy/master_eq_inspection.py`, `xy/master_saturator_inspection.py` | partial (`set_master_eq`) |
+| Sampler one-shot read | `xy/sampler_sample_inspection.py` | gap |
 | Human report | `tools/inspect_xy.py` | — |
 
 Detailed guide cross-reference: `docs/format/opxy_user_guide_save_audit.md`.
@@ -183,7 +217,8 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Profile-gated JSON build — `xy/profiles.py`, `tests/test_profiles.py`
 - [x] Corpus index/lab — `tools/corpus_lab.py`
 - [x] Round-trip verify — `tools/roundtrip_xy.py`
-- [x] Inspector CLI with track preset paths, pattern presets, drum samples — `tools/inspect_xy.py`
+- [x] Inspector CLI — presets, paths, drums, sampler, mixer, scenes, EQ, saturator —
+  `tools/inspect_xy.py`, `docs/tools/inspect_xy.md`
 
 ## 15. Outside project `.xy`
 
