@@ -67,5 +67,7 @@ def inspect_master_eq(project: ImageProject) -> MasterEq:
 
 
 def inspect_master_eq_bytes(data: bytes) -> MasterEq:
-    _, image = decode_project(data)
-    return read_master_eq(ImageProject(bytearray(image)))
+    header, image = decode_project(data)
+    project = ImageProject(header, bytearray(image))
+    project._rescan()
+    return read_master_eq(project)

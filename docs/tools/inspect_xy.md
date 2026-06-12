@@ -11,12 +11,21 @@
   preset folder or fragmented preset-name strings (`xy/project_inspection.py`).
 - Drum-engine track voices: paths plus tune/play/direction/pan/start/end/gain/fade
   (`xy/drum_sample_inspection.py`).
+- One-shot sampler sample-edit screen (`xy/sampler_sample_inspection.py`).
+- Static mixer: T1 vol/pan/sends + master buses (`xy/mixer_static_inspection.py`).
+- Scene mix: scene count, active scene, master vol, T1–T8 volume bytes
+  (`xy/scene_volume_inspection.py`).
+- Scene mutes: per-slot muted tracks when any mutes present (`read_scene_muted_tracks`).
+- Master EQ bands (`xy/master_eq_inspection.py`).
+- Master saturator (`xy/master_saturator_inspection.py`).
 - Per-track scan and event summaries.
-- EQ/global snippets.
+- Legacy EQ/global snippets (older offsets).
 
 ## Usage
-- `python tools/inspect_xy.py 'src/one-off-changes-from-default/unnamed 1.xy'`
+- `python tools/inspect_xy.py 'src/app-mixer-probes/2026-06-static/f0-baseline-mix-default.xy'`
+- `python tools/inspect_xy.py 'src/app-preset-probes/2026-06-app-required/a1-t1-p9.xy'`
 
 ## Notes
 - Pointer-tail and pointer-21 note decode is still incomplete; see `docs/issues/pointer_tail_decoding.md`.
 - Use with `docs/workflows/inspector_sweep.md` for structured corpus validation.
+- Preset reference inference is heuristic — see confidence in `[Pattern Presets]` output.

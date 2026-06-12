@@ -30,7 +30,16 @@ if str(REPO_ROOT) not in sys.path:
 import re
 
 from xy.drum_sample_inspection import inspect_drum_samples_bytes  # noqa: E402
+from xy.image_writer import ImageProject  # noqa: E402
+from xy.master_eq_inspection import inspect_master_eq_bytes  # noqa: E402
+from xy.master_saturator_inspection import inspect_master_saturator_bytes  # noqa: E402
+from xy.mixer_static_inspection import inspect_static_mixer_bytes  # noqa: E402
+from xy.rle import decode_project  # noqa: E402
 from xy.sampler_sample_inspection import inspect_sampler_samples_bytes  # noqa: E402
+from xy.scene_volume_inspection import (  # noqa: E402
+    inspect_scene_volumes_bytes,
+    read_scene_muted_tracks,
+)
 from xy.note_reader import read_event as _unified_read_event  # noqa: E402
 from xy.preset_path_inspection import inspect_preset_paths_bytes  # noqa: E402
 from xy.project_inspection import inspect_project_bytes  # noqa: E402
@@ -1787,6 +1796,91 @@ def generate_report(path: Path, data: bytes) -> str:
                 f"gain={sample.gain} dir={sample.direction_label} "
                 f"loop_type={sample.loop_type}"
             )
+        lines.append("")
+
+    scene_project: ImageProject | None = None
+    try:
+        header, image = decode_project(data)
+        scene_project = ImageProject(header, bytearray(image))
+        scene_project._rescan()
+    except Exception:
+        scene_project = None
+
+    try:
+        static_mixer = inspect_static_mixer_bytes(data)
+    except Exception:
+        static_mixer = None
+
+    if static_mixer:
+        lines.append("[Static Mixer]")
+        t1 = static_mixer.tracks[0]
+        lines.append(
+            f"  T1 vol={t1.volume.byte} pan={t1.pan.byte} "
+            f"fx1={t1.send_fx1.byte} fx2={t1.send_fx2.byte}"
+        )
+        m = static_mixer.master
+        lines.append(
+            f"  Master perc={m.percussion.byte} melody={m.melody.byte} "
+            f"comp={m.compressor.byte} master={m.master.byte}"
+        )
+        lines.append("")
+
+    try:
+        scene_mix = inspect_scene_volumes_bytes(data)
+    except Exception:
+        scene_mix = None
+
+    if scene_mix:
+        lines.append("[Scene Mix]")
+        lines.append(
+            f"  scenes={scene_mix.scene_count} active={scene_mix.active_scene_ordinal} "
+            f"master_vol={scene_mix.master_vol_byte}"
+        )
+        for row in scene_mix.track_volumes[:8]:
+            lines.append(f"  T{row.track:02d} vol_byte={row.vol_byte}")
+        lines.append("")
+
+    if scene_project is not None:
+        mute_lines: list[str] = []
+        slot_count = scene_mix.scene_count if scene_mix else 1
+        for slot in range(slot_count):
+            try:
+                muted = read_scene_muted_tracks(scene_project, slot)
+            except Exception:
+                muted = ()
+            if muted:
+                mute_lines.append(
+                    f"  slot {slot}: {', '.join(f'T{t}' for t in muted)}"
+                )
+        if mute_lines:
+            lines.append("[Scene Mutes]")
+            lines.extend(mute_lines)
+            lines.append("")
+
+    try:
+        master_eq = inspect_master_eq_bytes(data)
+    except Exception:
+        master_eq = None
+
+    if master_eq:
+        lines.append("[Master EQ]")
+        lines.append(
+            f"  low={master_eq.low.byte} mid={master_eq.mid.byte} "
+            f"high={master_eq.high.byte}"
+        )
+        lines.append("")
+
+    try:
+        saturator = inspect_master_saturator_bytes(data)
+    except Exception:
+        saturator = None
+
+    if saturator:
+        lines.append("[Master Saturator]")
+        lines.append(
+            f"  gain={saturator.gain.byte} clip={saturator.clip.byte} "
+            f"tone={saturator.tone.byte} mix={saturator.mix.byte}"
+        )
         lines.append("")
 
     lines.append("[Tracks]")

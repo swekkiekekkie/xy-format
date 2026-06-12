@@ -65,5 +65,7 @@ def inspect_master_saturator(project: ImageProject) -> MasterSaturator:
 
 
 def inspect_master_saturator_bytes(data: bytes) -> MasterSaturator:
-    _, image = decode_project(data)
-    return read_master_saturator(ImageProject(bytearray(image)))
+    header, image = decode_project(data)
+    project = ImageProject(header, bytearray(image))
+    project._rescan()
+    return read_master_saturator(project)
