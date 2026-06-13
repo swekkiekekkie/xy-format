@@ -123,11 +123,11 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Final-bar / partial-bar length — total active steps at track+`0x01`;
   `steps = (bars - 1) * 16 + final_bar_steps` — BAR-LEN fixtures
 - [~] Per-track quantization amount — raw byte pinned at track+`0x07`;
-  UI 0/1/2/98/99/100 captured, middle scaling still partial — BAR fixtures
+  UI 0/1/2/25/50/75/98/99/100 captured, exact scaling still partial — BAR fixtures
 - [x] Default step length (persistent) — u16 ticks at track+`0x02`;
   `240` default, `480` max — `xy/bar_menu_inspection.py`
-- [~] Per-track groove override — index byte at track+`0x08`;
-  storage is `3 * index` into the displayed UI sequence; `bar-gp002` recapture needed
+- [x] Per-track groove override — index byte at track+`0x08`;
+  storage is `3 * index` into the displayed UI sequence, saturated at ±99 — BAR fixtures
 - [x] P-lock smoothing/shape — raw byte at track+`0x3056`;
   UI labels/icons still open — `xy/bar_menu_inspection.py`
 

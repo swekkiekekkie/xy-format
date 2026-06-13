@@ -16,50 +16,29 @@ TRACK_GROOVE_OFFSET = 0x08
 TRACK_PLOCK_SHAPE_OFFSET = 0x3056
 
 TRACK_GROOVE_UI_SEQUENCE = (
-    2,
-    4,
-    7,
-    9,
-    11,
-    14,
-    16,
-    18,
-    21,
-    23,
-    25,
-    28,
-    30,
-    32,
-    35,
-    37,
-    39,
-    42,
-    44,
-    46,
-    49,
-    51,
-    53,
-    56,
-    58,
-    60,
-    63,
-    65,
-    67,
-    70,
-    72,
-    75,
-    77,
-    79,
-    82,
-    84,
-    86,
-    89,
-    91,
-    93,
-    96,
-    98,
-    99,
+2,4,7,9,11,14,16,18,21,23,25,28,30,32,35,37,39,42,44,46,49,51,53,56,58,60,63,65,67,70,72,75,77,79,82,84,86,89,91,93,96,98,99
 )
+
+
+def groove_index_for_ui_value(ui_value: int) -> int:
+    if ui_value == 0:
+        return 0
+    sign = 1 if ui_value > 0 else -1
+    try:
+        index = TRACK_GROOVE_UI_SEQUENCE.index(abs(ui_value)) + 1
+    except ValueError as exc:
+        raise ValueError("groove UI value is not in the device sequence") from exc
+    return sign * index
+
+
+def encode_track_groove_ui(ui_value: int) -> int:
+    index = groove_index_for_ui_value(ui_value)
+    raw = index * 3
+    if raw > 0x7F:
+        raw = 0x7F
+    if raw < -0x7F:
+        raw = -0x7F
+    return raw & 0xFF
 
 
 @dataclass(frozen=True)
@@ -103,15 +82,14 @@ class TrackBarMenu:
         signed = self.groove_signed_raw
         if signed == 0:
             return 0
+        if signed == 0x7F:
+            return len(TRACK_GROOVE_UI_SEQUENCE)
+        if signed == -0x7F:
+            return -len(TRACK_GROOVE_UI_SEQUENCE)
         if signed % 3 == 0:
             index = signed // 3
             if abs(index) <= len(TRACK_GROOVE_UI_SEQUENCE):
                 return index
-        # Edge values are inferred from the UI table but not in the BAR pack.
-        if signed == 0x7F:
-            return len(TRACK_GROOVE_UI_SEQUENCE)
-        if signed == -0x80:
-            return -len(TRACK_GROOVE_UI_SEQUENCE)
         return None
 
     @property

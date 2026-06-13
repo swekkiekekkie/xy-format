@@ -9,6 +9,8 @@ from xy.bar_menu_inspection import (
     TRACK_PATTERN_STEPS_OFFSET,
     TRACK_QUANTIZATION_OFFSET,
     TRACK_GROOVE_UI_SEQUENCE,
+    encode_track_groove_ui,
+    groove_index_for_ui_value,
     inspect_bar_menu_bytes,
 )
 from xy.image_writer import ImageProject
@@ -73,6 +75,9 @@ def test_default_step_length_ticks(filename: str, ticks: int, ui: int) -> None:
         ("bar-q-000.xy", 0x00, 0),
         ("bar-q-001.xy", 0x04, 2),
         ("bar-q-002.xy", 0x07, 3),
+        ("bar-q-025-redo.xy", 0x41, 25),
+        ("bar-q-050-redo.xy", 0x81, 51),
+        ("bar-q-075-redo.xy", 0xC0, 75),
         ("bar-q-098.xy", 0xFC, 99),
         ("bar-q-099.xy", 0xFE, 100),
     ],
@@ -91,12 +96,29 @@ def test_quantization_raw_byte(filename: str, raw: int, ui_approx: int) -> None:
         ("bar-gn007.xy", 0xF7, -9, -3, -7),
         ("bar-gn004.xy", 0xFA, -6, -2, -4),
         ("bar-gn002.xy", 0xFD, -3, -1, -2),
+        ("bar-gp002-redo.xy", 0x03, 3, 1, 2),
         ("bar-gp004.xy", 0x06, 6, 2, 4),
         ("bar-gp007.xy", 0x09, 9, 3, 7),
         ("bar-gp009.xy", 0x0C, 12, 4, 9),
         ("bar-gp011.xy", 0x0F, 15, 5, 11),
         ("bar-gp014.xy", 0x12, 18, 6, 14),
         ("bar-gp060.xy", 0x4E, 78, 26, 60),
+        ("bar-gp084-redo.xy", 0x6C, 108, 36, 84),
+        ("bar-gp086-redo.xy", 0x6F, 111, 37, 86),
+        ("bar-gp089-redo.xy", 0x72, 114, 38, 89),
+        ("bar-gp091-redo.xy", 0x75, 117, 39, 91),
+        ("bar-gp093-redo.xy", 0x78, 120, 40, 93),
+        ("bar-gp096-redo.xy", 0x7B, 123, 41, 96),
+        ("bar-gp099-redo.xy", 0x7F, 127, 43, 99),
+        ("bar-gn079-redo.xy", 0x9A, -102, -34, -79),
+        ("bar-gn082-redo.xy", 0x97, -105, -35, -82),
+        ("bar-gn084-redo.xy", 0x94, -108, -36, -84),
+        ("bar-gn086-redo.xy", 0x91, -111, -37, -86),
+        ("bar-gn089-redo.xy", 0x8E, -114, -38, -89),
+        ("bar-gn091-redo.xy", 0x8B, -117, -39, -91),
+        ("bar-gn093-redo.xy", 0x88, -120, -40, -93),
+        ("bar-gn096-redo.xy", 0x85, -123, -41, -96),
+        ("bar-gn099-redo.xy", 0x81, -127, -43, -99),
     ],
 )
 def test_track_groove_partial_lut(
@@ -111,6 +133,12 @@ def test_track_groove_partial_lut(
 
 def test_track_groove_uses_handwritten_ui_sequence() -> None:
     assert TRACK_GROOVE_UI_SEQUENCE[:8] == (2, 4, 7, 9, 11, 14, 16, 18)
+    assert groove_index_for_ui_value(2) == 1
+    assert groove_index_for_ui_value(99) == 43
+    assert groove_index_for_ui_value(-99) == -43
+    assert encode_track_groove_ui(2) == 0x03
+    assert encode_track_groove_ui(99) == 0x7F
+    assert encode_track_groove_ui(-99) == 0x81
 
 
 def test_bar_gp002_capture_decodes_as_gp007_index() -> None:
@@ -152,12 +180,13 @@ def test_bar_menu_setters_write_decoded_bytes() -> None:
     project.set_track_quantization_raw(1, 0)
     project.set_track_groove_raw(1, 0xF1)
     project.set_plock_shape_raw(1, 0xFB)
+    project.set_track_groove_ui(1, 99)
 
     image = project.image
     assert image[start + TRACK_PATTERN_STEPS_OFFSET] == 51
     assert image[start + TRACK_DEFAULT_STEP_LENGTH_OFFSET : start + 4] == b"\xE0\x01"
     assert image[start + TRACK_QUANTIZATION_OFFSET] == 0
-    assert image[start + TRACK_GROOVE_OFFSET] == 0xF1
+    assert image[start + TRACK_GROOVE_OFFSET] == 0x7F
     assert image[start + TRACK_PLOCK_SHAPE_OFFSET] == 0xFB
 
 

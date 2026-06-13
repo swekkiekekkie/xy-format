@@ -117,8 +117,8 @@ track unless noted.
 | `+0x01` | **x** | Total pattern steps, including final-bar partial length (`(bars-1)*16+last_bar`) | BAR-LEN, `set_pattern_steps` |
 | `+0x02`–`+0x03` | **x** | Bar-menu default step length, u16 ticks (`240` default, `480` max) | BAR `bar-l-*` |
 | `+0x06` | **x** | Track scale byte | `set_track_scale` |
-| `+0x07` | **~** | Bar-menu quantization raw byte; middle UI scaling partial | BAR `bar-q-*` |
-| `+0x08` | **~** | Bar-menu per-track groove override index byte; `bar-gp002` needs recapture | BAR `bar-g*` |
+| `+0x07` | **~** | Bar-menu quantization raw byte; exact UI scaling partial | BAR `bar-q-*` |
+| `+0x08` | **x** | Bar-menu per-track groove override index byte into displayed UI sequence | BAR `bar-g*` |
 | `+0x03`–`+0x0A` | **~** | Early header bytes; no longer a stable signature because BAR fields mutate this range | BAR |
 | `+0x11` | **x** | Pristine u16 (`8` = factory, `0` = edited) | sticky |
 | `+0x13`–`+0x29F` | **~** | Preset identity region (part 1) | `set_preset` donor copy |

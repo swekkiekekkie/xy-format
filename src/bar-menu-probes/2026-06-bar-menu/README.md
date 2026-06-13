@@ -161,7 +161,7 @@ Create new filenames when ready (e.g. `bar-x-s2-gp014.xy`).
 | --- | --- | --- | --- |
 | Quantization | 100 | `+0x07 = FF` | raw byte pinned; UI scaling partial |
 | Length | 50 | `+0x02 = F0 00` (`240` ticks) | decoded |
-| Groove | 0 | `+0x08 = 00` | index model pinned; `bar-gp002` needs recapture |
+| Groove | 0 | `+0x08 = 00` | decoded index model; old `bar-gp002` superseded by redo |
 | P-lock shape | default | `+0x3056 = 00` | decoded raw storage |
 
 ### Groove LUT decode
@@ -169,9 +169,10 @@ Create new filenames when ready (e.g. `bar-x-s2-gp014.xy`).
 `TRACK+0x08` stores the per-track groove override as an index into the
 hand-written UI sequence above. Raw signed storage is `3 * index`, where
 index 0 = groove UI 0, index +1 = UI +2, index +2 = UI +4, index +3 = UI +7,
-and so on. Negative values mirror the same index table. `bar-gp002.xy` stores
-`0x09`, matching index +3 / UI +7, so treat that one capture as anomalous
-until re-probed.
+and so on. Negative values mirror the same index table. The extrema saturate
+at signed i8 limits: UI +99 stores `0x7F`; UI -99 stores `0x81`.
+`bar-gp002.xy` stores `0x09`, matching index +3 / UI +7, and is superseded by
+`bar-gp002-redo.xy` (`0x03`, index +1 / UI +2).
 
 | PC filename | UI groove | Index | Stored raw |
 | --- | --- | --- | --- |
@@ -182,6 +183,7 @@ until re-probed.
 | `bar-gn009.xy` | -9 | -4 | `F4` |
 | `bar-gn011.xy` | -11 | -5 | `F1` |
 | `bar-gp002.xy` | +2 intended, decodes +7 | +3 | `09` |
+| `bar-gp002-redo.xy` | +2 | +1 | `03` |
 | `bar-gp004.xy` | +4 | +2 | `06` |
 | `bar-gp007.xy` | +7 | +3 | `09` |
 | `bar-gp009.xy` | +9 | +4 | `0C` |
@@ -194,6 +196,22 @@ until re-probed.
 | `bar-gp056.xy` | +56 | +24 | `48` |
 | `bar-gp058.xy` | +58 | +25 | `4B` |
 | `bar-gp060.xy` | +60 | +26 | `4E` |
+| `bar-gp084-redo.xy` | +84 | +36 | `6C` |
+| `bar-gp086-redo.xy` | +86 | +37 | `6F` |
+| `bar-gp089-redo.xy` | +89 | +38 | `72` |
+| `bar-gp091-redo.xy` | +91 | +39 | `75` |
+| `bar-gp093-redo.xy` | +93 | +40 | `78` |
+| `bar-gp096-redo.xy` | +96 | +41 | `7B` |
+| `bar-gp099-redo.xy` | +99 | +43 | `7F` |
+| `bar-gn079-redo.xy` | -79 | -34 | `9A` |
+| `bar-gn082-redo.xy` | -82 | -35 | `97` |
+| `bar-gn084-redo.xy` | -84 | -36 | `94` |
+| `bar-gn086-redo.xy` | -86 | -37 | `91` |
+| `bar-gn089-redo.xy` | -89 | -38 | `8E` |
+| `bar-gn091-redo.xy` | -91 | -39 | `8B` |
+| `bar-gn093-redo.xy` | -93 | -40 | `88` |
+| `bar-gn096-redo.xy` | -96 | -41 | `85` |
+| `bar-gn099-redo.xy` | -99 | -43 | `81` |
 
 ### Quant / length / shape
 
@@ -202,6 +220,9 @@ until re-probed.
 | `bar-q-000.xy` | decoded | quant 0 | `+0x07 = 00` |
 | `bar-q-001.xy` | decoded | quant 1 | `+0x07 = 04` |
 | `bar-q-002.xy` | decoded | quant 2 | `+0x07 = 07` |
+| `bar-q-025-redo.xy` | decoded | quant 25 | `+0x07 = 41` |
+| `bar-q-050-redo.xy` | decoded | quant 50 | `+0x07 = 81` |
+| `bar-q-075-redo.xy` | decoded | quant 75 | `+0x07 = C0` |
 | `bar-q-098.xy` | decoded | quant 98 | `+0x07 = FC` |
 | `bar-q-099.xy` | decoded | quant 99 | `+0x07 = FE` |
 | `bar0.xy` | baseline | quant 100 | `+0x07 = FF` |

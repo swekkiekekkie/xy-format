@@ -97,6 +97,11 @@ class ImageProject:
         self.image[s + OFF_TRACK_GROOVE] = raw
         self.mark_edited(track)
 
+    def set_track_groove_ui(self, track: int, ui_value: int) -> None:
+        from .bar_menu_inspection import encode_track_groove_ui
+
+        self.set_track_groove_raw(track, encode_track_groove_ui(ui_value))
+
     def set_plock_shape_raw(self, track: int, raw: int) -> None:
         if not 0 <= raw <= 0xFF:
             raise ValueError("p-lock shape raw value must be 0..255")

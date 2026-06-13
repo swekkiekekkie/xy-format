@@ -140,6 +140,8 @@ from .bar_menu_inspection import (  # noqa: F401
     TRACK_PATTERN_STEPS_OFFSET,
     TRACK_QUANTIZATION_OFFSET,
     TrackBarMenu,
+    encode_track_groove_ui,
+    groove_index_for_ui_value,
     inspect_bar_menu_bytes,
     read_track_bar_menu,
 )

@@ -62,8 +62,8 @@ derived from scene row flags, not from `0x06`.
 | +0x02 | default step length, u16 LE ticks (`240` = UI 50, min capture `4`, max `480`) | BAR `bar-l-*` |
 | +0x03–0x0A | early header bytes; formerly used as a signature, but BAR fields can mutate this range | BAR |
 | +0x06 | **track scale** (0x01=½, 0x03=1, 0x05=2, 0x0E=16) | u20–u22 |
-| +0x07 | bar-page quantization raw byte (`0x00` UI 0, `0xFF` default/UI 100; middle scaling partial) | BAR `bar-q-*` |
-| +0x08 | per-track groove override index byte (`signed_raw = 3 * index` into the UI sequence; index ±1 = UI ±2, ±2 = ±4, ±3 = ±7, …) | BAR `bar-g*` |
+| +0x07 | bar-page quantization raw byte (`0x00` UI 0, `0xFF` default/UI 100; middle captures include UI 25/50/75 = `0x41`/`0x81`/`0xC0`; exact scaling partial) | BAR `bar-q-*` |
+| +0x08 | per-track groove override index byte (`signed_raw = 3 * index` into the UI sequence, saturated to signed i8 at ±99) | BAR `bar-g*` |
 | +0x11 | u16: **8 = pristine, 0 = edited** — the raw "type 0x05/0x07 + `08 00` padding" was this field's RLE shadow; sticky (never returns to 8) | u51, u53, every edit file |
 | +0x1C | M4/LFO type selector (5 bytes change on LFO swap) | u32 |
 | +0x20 | M4 page on/off | u31, u33 |

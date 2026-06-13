@@ -95,9 +95,9 @@ Guide refs: section 7.1 p.22-23; section 7.2 p.24; section 7.3 p.25; section 7.4
 | Add/remove bars | 1-4 bars per pattern. | Decoded at track `+0x01` (`bars << 4`). |
 | Duplicate bar | Copy notes/locks/components between step ranges. | Operation over decoded structures; no separate field. |
 | Sequence length / final-bar length | Number of active steps when last bar is shortened. | Decoded (BAR-LEN). Track `+0x01` stores total active steps: `(bar_count - 1) * 16 + final_bar_steps`. |
-| Track quantization | Recording quantize amount; affects whether nudge is allowed at 100. | Partial (BAR). Raw byte at track `+0x07`; UI 0/1/2/98/99/100 captured, middle scaling still partial. |
+| Track quantization | Recording quantize amount; affects whether nudge is allowed at 100. | Partial (BAR). Raw byte at track `+0x07`; UI 0/1/2/25/50/75/98/99/100 captured, exact scaling still partial. |
 | Default step length | Length of newly step-sequenced notes. | Decoded (BAR). U16 ticks at track `+0x02`; default `240`, max `480`, one detent near center = 4 ticks. |
-| Per-track groove override | Bar-page groove overriding tempo swing. | Partial (BAR). Raw index byte at track `+0x08`; storage is `3 * index` into the displayed UI sequence, with `bar-gp002` needing recapture. |
+| Per-track groove override | Bar-page groove overriding tempo swing. | Decoded (BAR). Raw index byte at track `+0x08`; storage is `3 * index` into the displayed UI sequence, saturated at ±99. |
 | P-lock smoothing/shape | Interpolation/smoothing between p-locks. | Decoded raw storage (BAR) at track `+0x3056`; UI curve names/icons still not mapped. |
 
 ### Step Components
