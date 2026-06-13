@@ -114,7 +114,7 @@ track unless noted.
 | +Offset | Status | Field | Notes |
 | --- | --- | --- | --- |
 | `+0x00` | **x** | Pattern count (leader) | Multi-pattern |
-| `+0x01` | **x** | Bars/steps (`0x10`…`0x40` = 1–4 bars) | `set_bars` |
+| `+0x01` | **x** | Total pattern steps, including final-bar partial length (`(bars-1)*16+last_bar`) | BAR-LEN, `set_pattern_steps` |
 | `+0x02`–`+0x03` | **x** | Bar-menu default step length, u16 ticks (`240` default, `480` max) | BAR `bar-l-*` |
 | `+0x06` | **x** | Track scale byte | `set_track_scale` |
 | `+0x07` | **~** | Bar-menu quantization raw byte; middle UI scaling partial | BAR `bar-q-*` |

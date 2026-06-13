@@ -94,7 +94,7 @@ Guide refs: section 7.1 p.22-23; section 7.2 p.24; section 7.3 p.25; section 7.4
 | Track scale | One step duration: 1, 2, 3, 4, 6, 8, 16, 1/2 per guide. | Partial. Location decoded at track `+0x06`; observed values include 1, 2, 16, and 1/2. Missing confirmed enum bytes for 3, 4, 6, 8. |
 | Add/remove bars | 1-4 bars per pattern. | Decoded at track `+0x01` (`bars << 4`). |
 | Duplicate bar | Copy notes/locks/components between step ranges. | Operation over decoded structures; no separate field. |
-| Sequence length / final-bar length | Number of active steps when last bar is shortened. | Gap. Bar count is known; final partial-bar length is not pinned. |
+| Sequence length / final-bar length | Number of active steps when last bar is shortened. | Decoded (BAR-LEN). Track `+0x01` stores total active steps: `(bar_count - 1) * 16 + final_bar_steps`. |
 | Track quantization | Recording quantize amount; affects whether nudge is allowed at 100. | Partial (BAR). Raw byte at track `+0x07`; UI 0/1/2/98/99/100 captured, middle scaling still partial. |
 | Default step length | Length of newly step-sequenced notes. | Decoded (BAR). U16 ticks at track `+0x02`; default `240`, max `480`, one detent near center = 4 ticks. |
 | Per-track groove override | Bar-page groove overriding tempo swing. | Partial (BAR). Raw index byte at track `+0x08`; storage is `3 * index` into the displayed UI sequence, with `bar-gp002` needing recapture. |

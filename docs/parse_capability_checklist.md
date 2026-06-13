@@ -120,7 +120,8 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Bars per pattern (`bars << 4` @ track+`0x01`) — `set_bars`
 - [x] Track scale byte (subset: 1/2, 1/2, 16 observed) — `set_track_scale`
 - [~] Track scale full enum (3, 4, 6, 8) — partial — `opxy_user_guide_save_audit.md`
-- [ ] Final-bar / partial-bar length — gap
+- [x] Final-bar / partial-bar length — total active steps at track+`0x01`;
+  `steps = (bars - 1) * 16 + final_bar_steps` — BAR-LEN fixtures
 - [~] Per-track quantization amount — raw byte pinned at track+`0x07`;
   UI 0/1/2/98/99/100 captured, middle scaling still partial — BAR fixtures
 - [x] Default step length (persistent) — u16 ticks at track+`0x02`;

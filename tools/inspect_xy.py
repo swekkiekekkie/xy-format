@@ -1993,7 +1993,9 @@ def generate_report(path: Path, data: bytes) -> str:
         row = bar_menu[0]
         lines.append("[Bar Menu]")
         lines.append(
-            f"  T{row.track} length_ticks={row.default_step_length_ticks} "
+            f"  T{row.track} pattern_steps={row.pattern_steps} "
+            f"bars={row.bar_count} final_bar_steps={row.final_bar_steps} "
+            f"length_ticks={row.default_step_length_ticks} "
             f"length_ui~={row.default_step_length_ui} "
             f"quant_raw={row.quantization_raw} "
             f"quant_ui~={row.quantization_ui_approx} "

@@ -1,6 +1,7 @@
 # 2026-06-13 — Bar menu inspection
 
 Fixture pack: `src/bar-menu-probes/2026-06-bar-menu/`
+Related final-bar length pack: `src/bar-menu-probes/2026-06-bar-length/`
 
 Firmware 1.1.4 probe pack targeting checklist §4 bar-menu gaps for Scene 1,
 Track 1, Pattern 1.
@@ -10,6 +11,7 @@ Track 1, Pattern 1.
 | Field | Track offset | Encoding | Fixtures |
 | --- | --- | --- | --- |
 | Default step length | `+0x02` | u16 LE ticks; baseline `240` (UI 50), min capture `4`, max `480`; one detent near center = 4 ticks | `bar-l-*` |
+| Pattern/final-bar length | `+0x01` | total active sequencer steps: `(bar_count - 1) * 16 + final_bar_steps` | BAR-LEN |
 | Quantization | `+0x07` | raw byte; baseline/UI 100 `0xFF`, UI 0 `0x00`, UI 1/2 `0x04`/`0x07`, UI 98/99 `0xFC`/`0xFE`; middle scaling still needs more points | `bar-q-*` |
 | Per-track groove override | `+0x08` | raw signed index byte: storage is `3 * index` into the hand-written UI sequence; index +1 = UI +2, +2 = +4, +3 = +7, etc. | `bar-g*` |
 | P-lock interpolation/shape | `+0x3056` | raw byte; default/min `0x00`, min+1/+2 `0x04`/`0x08`, max-side `0xF7`/`0xFB`/`0xFF` | `bar-s-*` |

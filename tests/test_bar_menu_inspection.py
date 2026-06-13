@@ -6,6 +6,7 @@ from xy.bar_menu_inspection import (
     TRACK_DEFAULT_STEP_LENGTH_OFFSET,
     TRACK_GROOVE_OFFSET,
     TRACK_PLOCK_SHAPE_OFFSET,
+    TRACK_PATTERN_STEPS_OFFSET,
     TRACK_QUANTIZATION_OFFSET,
     TRACK_GROOVE_UI_SEQUENCE,
     inspect_bar_menu_bytes,
@@ -14,6 +15,7 @@ from xy.image_writer import ImageProject
 from xy.rle import decode_project
 
 PROBES = Path("src/bar-menu-probes/2026-06-bar-menu")
+BAR_LENGTH_PROBES = Path("src/bar-menu-probes/2026-06-bar-length")
 BASELINE = PROBES / "bar0.xy"
 
 
@@ -21,9 +23,16 @@ def _bar(filename: str):
     return inspect_bar_menu_bytes((PROBES / filename).read_bytes(), tracks=1)[0]
 
 
+def _bar_length(filename: str):
+    return inspect_bar_menu_bytes((BAR_LENGTH_PROBES / filename).read_bytes(), tracks=1)[0]
+
+
 def test_bar_menu_baseline_defaults() -> None:
     bar = _bar("bar0.xy")
     assert bar.track == 1
+    assert bar.pattern_steps == 16
+    assert bar.bar_count == 1
+    assert bar.final_bar_steps == 16
     assert bar.default_step_length_ticks == 240
     assert bar.default_step_length_ui == 50
     assert bar.quantization_raw == 0xFF
@@ -138,12 +147,14 @@ def test_former_bar_q_max_capture_is_length_051_not_quantization() -> None:
 def test_bar_menu_setters_write_decoded_bytes() -> None:
     project = ImageProject.from_file(str(BASELINE))
     start = project.track_start(1)
+    project.set_pattern_steps(1, 51)
     project.set_default_step_length_ticks(1, 480)
     project.set_track_quantization_raw(1, 0)
     project.set_track_groove_raw(1, 0xF1)
     project.set_plock_shape_raw(1, 0xFB)
 
     image = project.image
+    assert image[start + TRACK_PATTERN_STEPS_OFFSET] == 51
     assert image[start + TRACK_DEFAULT_STEP_LENGTH_OFFSET : start + 4] == b"\xE0\x01"
     assert image[start + TRACK_QUANTIZATION_OFFSET] == 0
     assert image[start + TRACK_GROOVE_OFFSET] == 0xF1
@@ -183,3 +194,39 @@ def test_bar_menu_captures_are_isolated_to_bar_fields_plus_save_noise() -> None:
         image = decode_project(path.read_bytes())[1]
         diffs = {i for i, (a, b) in enumerate(zip(base, image)) if a != b}
         assert diffs <= allowed, path.name
+
+
+@pytest.mark.parametrize(
+    "filename,bars,final_steps,total_steps",
+    [
+        ("bar-num1-len1.xy", 1, 1, 1),
+        ("bar-num1-len2.xy", 1, 2, 2),
+        ("bar-num1-len3.xy", 1, 3, 3),
+        ("bar-num1-len7.xy", 1, 7, 7),
+        ("bar-num1-len8.xy", 1, 8, 8),
+        ("bar-num1-len9.xy", 1, 9, 9),
+        ("bar-num1-len10.xy", 1, 10, 10),
+        ("bar-num1-len11.xy", 1, 11, 11),
+        ("bar-num1-len12.xy", 1, 12, 12),
+        ("bar-num1-len14.xy", 1, 14, 14),
+        ("bar-num1-len15.xy", 1, 15, 15),
+        ("bar-num1-len16.xy", 1, 16, 16),
+        ("bar-num2-len2.xy", 2, 2, 18),
+        ("bar-num2-len15.xy", 2, 15, 31),
+        ("bar-num2-len16.xy", 2, 16, 32),
+        ("bar-num4-len3.xy", 4, 3, 51),
+    ],
+)
+def test_final_bar_length_uses_total_pattern_steps(
+    filename: str, bars: int, final_steps: int, total_steps: int
+) -> None:
+    bar = _bar_length(filename)
+    assert bar.pattern_steps == total_steps
+    assert bar.bar_count == bars
+    assert bar.final_bar_steps == final_steps
+
+
+def test_bar_num1_len13_capture_matches_len14_bytes() -> None:
+    bar = _bar_length("bar-num1-len13.xy")
+    assert bar.pattern_steps == 14
+    assert bar.final_bar_steps == 14

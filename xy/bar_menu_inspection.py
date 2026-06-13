@@ -9,6 +9,7 @@ from .rle import decode_project
 
 TRACK_BASE0 = 0x0D79
 TRACK_STRIDE = 0x45D4
+TRACK_PATTERN_STEPS_OFFSET = 0x01
 TRACK_DEFAULT_STEP_LENGTH_OFFSET = 0x02
 TRACK_QUANTIZATION_OFFSET = 0x07
 TRACK_GROOVE_OFFSET = 0x08
@@ -64,10 +65,20 @@ TRACK_GROOVE_UI_SEQUENCE = (
 @dataclass(frozen=True)
 class TrackBarMenu:
     track: int
+    pattern_steps: int
     default_step_length_ticks: int
     quantization_raw: int
     groove_raw: int
     plock_shape_raw: int
+
+    @property
+    def bar_count(self) -> int:
+        return (self.pattern_steps + 15) // 16
+
+    @property
+    def final_bar_steps(self) -> int:
+        remainder = self.pattern_steps % 16
+        return remainder if remainder else 16
 
     @property
     def default_step_length_ui(self) -> int:
@@ -130,6 +141,7 @@ def read_track_bar_menu(project: ImageProject, track: int) -> TrackBarMenu:
     base = TRACK_BASE0 + (track - 1) * TRACK_STRIDE
     return TrackBarMenu(
         track=track,
+        pattern_steps=image[base + TRACK_PATTERN_STEPS_OFFSET],
         default_step_length_ticks=int.from_bytes(
             image[
                 base

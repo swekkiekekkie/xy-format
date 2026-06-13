@@ -60,9 +60,8 @@ class ImageProject:
     def set_pattern_steps(self, track: int, steps: int) -> None:
         """Set the played pattern length in sequencer steps (1..64).
 
-        Device captures validate the whole-bar values 16/32/48/64. The guide's
-        final-bar length control is inferred to use the same byte for non-16
-        values; those values still need a direct device capture.
+        Device captures validate both whole-bar values 16/32/48/64 and
+        final-bar partial lengths: ``steps = (bar_count - 1) * 16 + last_bar``.
         """
         if not 1 <= steps <= 64:
             raise ValueError("pattern length must be 1..64 steps")

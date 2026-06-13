@@ -58,7 +58,7 @@ derived from scene row flags, not from `0x06`.
 | offset | field | evidence |
 |---|---|---|
 | +0x00 | pattern count (leader) | header decode |
-| +0x01 | pattern length in sequencer steps (`0x10`/`0x20`/`0x30`/`0x40` = 1/2/3/4 bars). Whole-bar values are device-captured; non-multiple values are the inferred storage for the guide's final-bar sequence-length control and still need a direct device capture. | u17–u19 |
+| +0x01 | pattern length in sequencer steps (`steps = (bar_count - 1) * 16 + final_bar_steps`; `0x10`/`0x20`/`0x30`/`0x40` = full 1/2/3/4 bars) | BAR-LEN |
 | +0x02 | default step length, u16 LE ticks (`240` = UI 50, min capture `4`, max `480`) | BAR `bar-l-*` |
 | +0x03–0x0A | early header bytes; formerly used as a signature, but BAR fields can mutate this range | BAR |
 | +0x06 | **track scale** (0x01=½, 0x03=1, 0x05=2, 0x0E=16) | u20–u22 |
