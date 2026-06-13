@@ -30,7 +30,7 @@ fields. Heuristic reads must say so and stay `[~]` until structural decode exist
 
 | Module | Tests | Primary log | Fixtures |
 | --- | --- | --- | --- |
-| `xy/project_inspection.py` | `test_project_inspection.py` | `2026-06-09_app_preset_probe_inspection.md` | `app-preset-probes/` |
+| `xy/project_inspection.py` | `test_project_inspection.py` | `2026-06-09_app_preset_probe_inspection.md` | `app-preset-probes/` (heuristic preset refs) |
 | `xy/preset_path_inspection.py` | `test_preset_path_structural.py` | `2026-06-12_preset_path_structural.md` | `2026-06-preset-path/` |
 | `xy/drum_sample_inspection.py` | `test_drum_sample_inspection*.py`, `test_drum_pan_fade_inspection.py`, `test_drum_voice_params_inspection.py` | `2026-06-12_drum_sample_path_inspection.md` | `2026-06-sample-paths/`, `2026-06-drum-pan-fade/` |
 | `xy/mixer_static_inspection.py` | `test_mixer_static_inspection.py` | `2026-06-12_mixer_static_inspection.md` | `2026-06-static/` |
@@ -54,7 +54,7 @@ Contributor workflow: `docs/workflows/contributor_inspection_workflow.md`.
 | P-locks | `xy/plocks.py` | `ImageProject.set_plock` |
 | Step components | `xy/step_components.py` | `ImageProject.set_step_component` |
 | JSON intent export | `xy/project_to_json.py` | `xy/json_build_spec.py` + profiles |
-| Preset reference inference | `xy/project_inspection.py` | `ImageProject.set_preset` (donor copy) |
+| Preset reference inference | `xy/project_inspection.py` (heuristic) | `ImageProject.set_preset` (donor copy) |
 | Track preset path @ `+0x453F` | `xy/preset_path_inspection.py` | gap — donor `set_preset` only |
 | Drum sample path read | `xy/drum_sample_inspection.py` | indirect via `set_preset`; no per-slot path API |
 | Static mixer / master bus read | `xy/mixer_static_inspection.py` | gap |
@@ -84,8 +84,8 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Metronome click volume — `set_click_volume`
 - [~] Metronome on/off — partial — `opxy_user_guide_save_audit.md` § Tempo
 - [x] Per-track MIDI channel (T1–T16) — `set_midi_channel`, global `0x55–0x64`
-- [x] Master EQ low/mid/high — device-validated min/default/max — `read_master_eq`,
-  global `0x68/0x6C/0x70`, P2-F `eq0`–`eq6`
+- [x] Master EQ low/mid/high — device-validated min/default/max with exact u32 spill
+  lanes — `read_master_eq`, global `0x68/0x6C/0x70`, P2-F `eq0`–`eq8`
 - [~] Active song/scene selection — global `0x06–0x07` touched; semantics incomplete — `opxy_user_guide_save_audit.md` § Arrange
 - [ ] Project transpose — gap
 - [ ] Time signature enum — gap
@@ -134,7 +134,9 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Filter type/on @ `+0x21`, `+0x25` — `set_filter`
 - [x] Filter knobs @ `+0x3897` — decoded map
 - [x] Preset identity **write** via donor region copy — `ImageProject.set_preset`, `tests/test_image_writer.py`
-- [x] Preset reference **read** (heuristic) per active pattern — `xy/project_inspection.py`, `tests/test_project_inspection.py`
+- [~] Preset reference **read** (heuristic) per active pattern — fixture-backed inference in
+  `xy/project_inspection.py` / `tests/test_project_inspection.py`; stays partial until the
+  `0xF7` preset-fragment region is structurally decoded
 - [x] Preset path structural **read** @ track `+0x453F` — `xy/preset_path_inspection.py`,
   `tests/test_preset_path_structural.py`, `src/app-preset-probes/2026-06-preset-path/`
 - [~] Preset path **write** @ `+0x453F` — not exported in `project_to_json` yet
@@ -155,7 +157,7 @@ Field offsets: `docs/format/decoded_image_map.md`.
   `tests/test_drum_sample_inspection.py`, `tests/test_drum_sample_inspection_round0.py`
 - [~] Sample path **write** — only as part of donor `set_preset` region copy; no
   `set_drum_voice_path()` yet — `docs/format/drum_sample_paths.md`
-- [x] Tune, play mode, direction, start, end, gain — `set_drum_voice` (tune device-validated);
+- [x] Tune, play mode, direction, start, loop-start candidate, end, gain — `set_drum_voice` (tune device-validated);
   **read** via `DrumVoiceSample` (`tune_semitones`, `direction`, `start`, `end`, `gain_u32`) —
   `tests/test_drum_voice_params_inspection.py` (`cap_drum_params.xy`)
 - [x] Pan read/write @ slot `+0x06` — device ±100, `tests/test_drum_pan_fade_inspection.py`
@@ -173,7 +175,8 @@ Field offsets: `docs/format/decoded_image_map.md`.
 
 ## 10. Scenes, songs, arrangement
 
-- [x] Scene slots: pattern sel[16] + mute[16] + flags — `build_arrangement`, `docs/format/scenes_songs.md`
+- [x] Scene slots: pattern sel[16] + mute[16] + row-present flag — `build_arrangement`,
+  `read_scene_slot_flag`, `read_present_scene_slots`, `docs/format/scenes_songs.md`
 - [x] Scene mute (device value 2) — scenes 1–8, slot `N−1` — `tests/test_scene_track_mute_inspection.py`, `scene_mute_storage_slot`, `read_scene_muted_tracks`
 - [x] Song footer chain + loop word — `build_arrangement`
 - [x] Multi-pattern clone assembly — `build_arrangement`
@@ -217,7 +220,7 @@ Field offsets: `docs/format/decoded_image_map.md`.
 - [x] Profile-gated JSON build — `xy/profiles.py`, `tests/test_profiles.py`
 - [x] Corpus index/lab — `tools/corpus_lab.py`
 - [x] Round-trip verify — `tools/roundtrip_xy.py`
-- [x] Inspector CLI — presets, paths, drums, sampler, mixer, scenes, EQ, saturator —
+- [x] Inspector CLI — presets, paths, drums, sampler, mixer, scenes, EQ, saturator, p-lock lanes —
   `tools/inspect_xy.py`, `docs/tools/inspect_xy.md`
 
 ## 15. Outside project `.xy`

@@ -30,10 +30,17 @@ if str(REPO_ROOT) not in sys.path:
 import re
 
 from xy.drum_sample_inspection import inspect_drum_samples_bytes  # noqa: E402
+from xy.container import XYProject  # noqa: E402
 from xy.image_writer import ImageProject  # noqa: E402
 from xy.master_eq_inspection import inspect_master_eq_bytes  # noqa: E402
 from xy.master_saturator_inspection import inspect_master_saturator_bytes  # noqa: E402
 from xy.mixer_static_inspection import inspect_static_mixer_bytes  # noqa: E402
+from xy.plocks import (  # noqa: E402
+    CONTINUATION_MARKER,
+    find_plock_start,
+    parse_standard_slots,
+    parse_t10_header,
+)
 from xy.rle import decode_project  # noqa: E402
 from xy.sampler_sample_inspection import inspect_sampler_samples_bytes  # noqa: E402
 from xy.scene_volume_inspection import (  # noqa: E402
@@ -1625,6 +1632,44 @@ def parse_eq_entries(data: bytes) -> list[tuple[int, int]]:
     return entries
 
 
+def summarize_plock_lanes(body: bytes) -> str | None:
+    start = find_plock_start(body)
+    if start is None:
+        return None
+
+    try:
+        slots, _next = parse_standard_slots(body, start=start)
+    except ValueError:
+        try:
+            header = parse_t10_header(body, start=start)
+        except ValueError:
+            return None
+        return (
+            f"T10 9-byte pid=0x{header.param_id:02X} "
+            f"values={1 + header.continuation_count} "
+            f"init=0x{header.initial_value:04X} "
+            f"meta=0x{header.meta_hi:02X}{header.meta_lo:02X}"
+        )
+
+    groups: list[tuple[int, int]] = []
+    current_idx: int | None = None
+    for slot in slots:
+        if slot.param_id is None:
+            continue
+        if slot.param_id == CONTINUATION_MARKER and current_idx is not None:
+            pid, count = groups[current_idx]
+            groups[current_idx] = (pid, count + 1)
+            continue
+        groups.append((slot.param_id, 1))
+        current_idx = len(groups) - 1
+
+    if not groups:
+        return None
+
+    lanes = ", ".join(f"0x{pid:02X}x{count}" for pid, count in groups)
+    return f"standard lanes={lanes}"
+
+
 def fmt_u16(value: int) -> str:
     return f"0x{value:04X}"
 
@@ -1872,8 +1917,8 @@ def generate_report(path: Path, data: bytes) -> str:
 
     if scene_project is not None:
         mute_lines: list[str] = []
-        slot_count = scene_mix.scene_count if scene_mix else 1
-        for slot in range(slot_count):
+        slots = scene_mix.present_scene_slots if scene_mix else (0,)
+        for slot in slots:
             try:
                 muted = read_scene_muted_tracks(scene_project, slot)
             except Exception:
@@ -1916,7 +1961,29 @@ def generate_report(path: Path, data: bytes) -> str:
             f"  gain={saturator.gain.byte} clip={saturator.clip.byte} "
             f"tone={saturator.tone.byte} mix={saturator.mix.byte}"
         )
+        lines.append(
+            f"  raw_u32 gain=0x{saturator.gain.u32:08X} "
+            f"clip=0x{saturator.clip.u32:08X} "
+            f"tone=0x{saturator.tone.u32:08X} "
+            f"mix=0x{saturator.mix.u32:08X}"
+        )
         lines.append("")
+
+    try:
+        logical_project = XYProject.from_bytes(data)
+    except Exception:
+        logical_project = None
+
+    if logical_project:
+        plock_lines: list[str] = []
+        for track_block in logical_project.tracks:
+            summary = summarize_plock_lanes(track_block.body)
+            if summary:
+                plock_lines.append(f"  T{track_block.index + 1}: {summary}")
+        if plock_lines:
+            lines.append("[P-Locks]")
+            lines.extend(plock_lines)
+            lines.append("")
 
     lines.append("[Tracks]")
     for track in tracks:

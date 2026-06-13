@@ -15,6 +15,8 @@ INSPECTOR = ROOT / "tools" / "inspect_xy.py"
 CHANGE_LOG = ROOT / "src" / "one-off-changes-from-default" / "op-xy_project_change_log.md"
 DATA_DIR = ROOT / "src" / "one-off-changes-from-default"
 BASELINE_FILE = DATA_DIR / "unnamed 1.xy"
+MIXER_PROBES = ROOT / "src" / "app-mixer-probes" / "2026-06-static"
+SCENE_VOLUME_PROBES = ROOT / "src" / "app-scene-probes" / "2026-06-volumes"
 
 
 def _label_to_filename(label: str) -> Path:
@@ -43,6 +45,7 @@ def _run_inspector(path: Path) -> tuple[int, str, str]:
         [sys.executable, str(INSPECTOR), str(path)],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=False,
         env=env,
     )
@@ -308,6 +311,38 @@ def test_inspector_contains_expected_patterns(label, spec):
             f"  actual:   {Counter(actual_tail_notes)}\n"
             f"  output:\n{output}"
         )
+
+
+def test_inspector_prints_cross_track_static_mixer_rows():
+    path = MIXER_PROBES / "f22-t6-send-fx1-max.xy"
+    code, output, err = _run_inspector(path)
+    assert code == 0, f"Inspector failed for {path.name}: {err}"
+    assert re.search(r"T6 vol=\d+ pan=\d+ fx1=127 fx2=\d+", output)
+    assert re.search(r"T6 raw_u32 .*fx1=0x7FFFFFFF", output)
+
+
+def test_inspector_prints_present_scene_count_from_slot_flags():
+    path = SCENE_VOLUME_PROBES / "s0b-baseline-2scenes.xy"
+    code, output, err = _run_inspector(path)
+    assert code == 0, f"Inspector failed for {path.name}: {err}"
+    assert "scenes=1 present=2" in output
+    assert "present_slots=0,1" in output
+
+
+def test_inspector_prints_standard_plock_lanes():
+    path = DATA_DIR / "unnamed 121.xy"
+    code, output, err = _run_inspector(path)
+    assert code == 0, f"Inspector failed for {path.name}: {err}"
+    assert "[P-Locks]" in output
+    assert "T2: standard lanes=0x5Ex14" in output
+    assert "T8: standard lanes=0x72x14" in output
+
+
+def test_inspector_prints_t10_plock_header():
+    path = DATA_DIR / "unnamed 126.xy"
+    code, output, err = _run_inspector(path)
+    assert code == 0, f"Inspector failed for {path.name}: {err}"
+    assert "T10: T10 9-byte pid=0x39 values=15" in output
 
 
 NOTE_LINE_PATTERN = re.compile(r"^\s*• note\[\d+\]:.*?note=([A-G](?:#|b)?-?\d{1,2})\b")
